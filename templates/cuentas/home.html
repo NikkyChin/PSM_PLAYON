@@ -30,14 +30,16 @@
         </ul>
     {% endif %}
 
-   {% if es_encargado_playon %}
-    <h2>Módulo del Encargado del Playón</h2>
-    <ul>
-        <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
-        <li><a href="{% url 'lista_ingresos' %}">Ver ingresos y retiros</a></li>
-        <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
-    </ul>
+    {% if es_encargado_playon %}
+        <h2>Módulo del Encargado del Playón</h2>
+        <ul>
+            <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
+            <li><a href="{% url 'ingresos_en_playon' %}">Ver vehículos en el playón</a></li>
+            <li><a href="{% url 'retiros_playon' %}">Ver retiros del playón</a></li>
+            <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
+        </ul>
     {% endif %}
+
 
 
 

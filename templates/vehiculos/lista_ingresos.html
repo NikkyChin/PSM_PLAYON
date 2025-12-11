@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ingresos al Playón</title>
+    <title>{{ titulo|default:"Ingresos al Playón" }}</title>
 </head>
 <body>
-    <h1>Ingresos registrados en el playón</h1>
+    <h1>{{ titulo|default:"Ingresos al Playón" }}</h1>
 
     <table border="1" cellpadding="5">
         <tr>
@@ -31,9 +31,23 @@
                     Retirado
                 {% endif %}
             </td>
+            <td>
+                <a href="{% url 'detalle_ingreso' i.id %}">Ver detalle</a>
+                {% if not i.retirado %}
+                    | <a href="{% url 'registrar_egreso' i.id %}">Registrar retiro</a>
+                {% else %}
+                    | Retirado
+                {% endif %}
+            </td>
         </tr>
         {% endfor %}
     </table>
+
+    <p>
+        <a href="{% url 'ingresos_en_playon' %}">Ver solo vehículos en el playón</a> |
+        <a href="{% url 'retiros_playon' %}">Ver solo retirados</a> |
+        <a href="{% url 'lista_ingresos' %}">Ver todos</a>
+    </p>
 
     <p><a href="{% url 'home' %}">Volver al menú</a></p>
 </body>

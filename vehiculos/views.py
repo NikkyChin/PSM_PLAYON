@@ -90,3 +90,44 @@ def registrar_egreso(request, ingreso_id):
         form = EgresoPlayonForm(instance=ingreso)
 
     return render(request, "vehiculos/egreso_form.html", {"form": form, "ingreso": ingreso})
+
+@login_required
+def ingresos_en_playon(request):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    ingresos = IngresoPlayon.objects.select_related("vehiculo").filter(retirado=False).order_by("-fecha_ingreso")
+    return render(request, "vehiculos/lista_ingresos.html", {
+        "ingresos": ingresos,
+        "titulo": "Vehículos actualmente en el playón",
+        "solo_en_playon": True,
+    })
+
+
+@login_required
+def retiros_playon(request):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    ingresos = IngresoPlayon.objects.select_related("vehiculo", "entregado_por").filter(retirado=True).order_by("-fecha_retiro")
+    return render(request, "vehiculos/lista_ingresos.html", {
+        "ingresos": ingresos,
+        "titulo": "Historial de retiros del playón",
+        "solo_en_playon": False,
+    })
+
+
+@login_required
+def detalle_ingreso(request, ingreso_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
+
+    return render(request, "vehiculos/detalle_ingreso.html", {"ingreso": ingreso})
