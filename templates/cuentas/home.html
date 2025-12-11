@@ -5,14 +5,51 @@
     <title>Inicio - PSM Playón</title>
 </head>
 <body>
-    <h1>Bienvenido al sistema del Playón Municipal</h1>
+    <h1>Playón Municipal - Sistema Interno</h1>
 
-    <p>Usuario logueado: {{ request.user.username }}</p>
+    <p>Usuario logueado: <strong>{{ request.user.username }}</strong></p>
 
-    <p>
-        <a href="{% url 'logout' %}">Cerrar sesión</a>
-    </p>
+    <hr>
 
-    <!-- Después acá pondremos accesos según rol: Inspector, Playón, Juez, Admin -->
+    {% if es_admin_sistema %}
+        <h2>Panel de Administración</h2>
+        <ul>
+            <li><a href="/admin/">Ir al administrador de Django</a></li>
+            <li>En el futuro: gestión de usuarios, roles, configuración, etc.</li>
+        </ul>
+    {% endif %}
+
+    {% if es_inspector %}
+        <h2>Módulo de Inspector</h2>
+        <ul>
+            <li>Registrar nueva infracción y secuestro</li>
+            <li>Ver mis infracciones</li>
+        </ul>
+    {% endif %}
+
+    {% if es_playon %}
+        <h2>Módulo de Playón</h2>
+        <ul>
+            <li>Registrar ingreso de vehículo secuestrado</li>
+            <li>Ver vehículos en playa</li>
+            <li>Registrar retiro de vehículo autorizado</li>
+        </ul>
+    {% endif %}
+
+    {% if es_juez %}
+        <h2>Módulo de Juzgado de Faltas</h2>
+        <ul>
+            <li>Ver vehículos en infracción</li>
+            <li>Dar alta para retiro</li>
+            <li>Ver historial de un vehículo</li>
+        </ul>
+    {% endif %}
+
+    {% if not es_inspector and not es_playon and not es_juez and not es_admin_sistema %}
+        <p>No tenés ningún rol asignado todavía. Pedí a un administrador que te asigne uno.</p>
+    {% endif %}
+
+    <hr>
+    <p><a href="{% url 'logout' %}">Cerrar sesión</a></p>
 </body>
 </html>
