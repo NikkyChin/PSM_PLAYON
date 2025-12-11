@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehículos registrados</title>
+</head>
+<body>
+    <h1>Vehículos en el sistema</h1>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Dominio</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Color</th>
+            <th>Año</th>
+            <th>Fecha alta</th>
+        </tr>
+
+        {% for v in vehiculos %}
+        <tr>
+            <td>{{ v.dominio }}</td>
+            <td>{{ v.marca }}</td>
+            <td>{{ v.modelo }}</td>
+            <td>{{ v.color }}</td>
+            <td>{{ v.anio }}</td>
+            <td>{{ v.fecha_alta }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{% url 'home' %}">Volver al menú</a></p>
+</body>
+</html>

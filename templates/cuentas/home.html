@@ -14,6 +14,7 @@
     {% if es_admin_sistema %}
         <h2>Panel de Administración</h2>
         <ul>
+            <li><a href="/vehiculos/lista/">Ver vehículos en el sistema</a></li>
             <li><a href="/admin/">Ir al administrador de Django</a></li>
             <li>En el futuro: gestión de usuarios, roles, configuración, etc.</li>
         </ul>
@@ -27,14 +28,15 @@
         </ul>
     {% endif %}
 
-    {% if es_playon %}
-        <h2>Módulo de Playón</h2>
-        <ul>
-            <li>Registrar ingreso de vehículo secuestrado</li>
-            <li>Ver vehículos en playa</li>
-            <li>Registrar retiro de vehículo autorizado</li>
-        </ul>
+   {% if es_encargado_playon %}
+    <h2>Módulo del Encargado del Playón</h2>
+    <ul>
+        <li><a href="/vehiculos/lista/">Ver vehículos en el sistema</a></li>
+        <li>Registrar ingreso de vehículo</li>
+        <li>Registrar retiro</li>
+    </ul>
     {% endif %}
+
 
     {% if es_juez %}
         <h2>Módulo de Juzgado de Faltas</h2>
