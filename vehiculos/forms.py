@@ -7,5 +7,21 @@ class IngresoPlayonForm(forms.ModelForm):
 
     class Meta:
         model = IngresoPlayon
-        # sacamos vehiculo, fecha_ingreso y recibido_por (se completan por código)
-        exclude = ("fecha_ingreso", "recibido_por", "vehiculo")
+        # campos que NO se muestran en el form (los manejamos a mano)
+        exclude = (
+            "fecha_ingreso",
+            "recibido_por",
+            "vehiculo",
+            "retirado",
+            "fecha_retiro",
+            "entregado_por",
+            "nombre_retira",
+            "dni_retira",
+            "observaciones_egreso",
+        )
+
+
+class EgresoPlayonForm(forms.ModelForm):
+    class Meta:
+        model = IngresoPlayon
+        fields = ("nombre_retira", "dni_retira", "observaciones_egreso")

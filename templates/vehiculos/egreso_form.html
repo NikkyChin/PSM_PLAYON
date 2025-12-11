@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar retiro del vehículo</title>
+</head>
+<body>
+    <h1>Registrar retiro del vehículo</h1>
+
+    <p><strong>Legajo:</strong> {{ ingreso.nro_legajo_playon }}</p>
+    <p><strong>Dominio:</strong> {{ ingreso.vehiculo.dominio }}</p>
+    <p><strong>Fecha ingreso:</strong> {{ ingreso.fecha_ingreso }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+
+        <button type="submit">Confirmar retiro</button>
+    </form>
+
+    <p><a href="{% url 'lista_ingresos' %}">Volver a la lista de ingresos</a></p>
+</body>
+</html>

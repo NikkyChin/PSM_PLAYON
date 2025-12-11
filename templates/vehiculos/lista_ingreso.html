@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingresos al Playón</title>
+</head>
+<body>
+    <h1>Ingresos registrados en el playón</h1>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Legajo</th>
+            <th>Dominio</th>
+            <th>Fecha ingreso</th>
+            <th>¿Retirado?</th>
+            <th>Fecha retiro</th>
+            <th>Acciones</th>
+        </tr>
+
+        {% for i in ingresos %}
+        <tr>
+            <td>{{ i.nro_legajo_playon }}</td>
+            <td>{{ i.vehiculo.dominio }}</td>
+            <td>{{ i.fecha_ingreso }}</td>
+            <td>{{ i.retirado|yesno:"Sí,No" }}</td>
+            <td>{% if i.fecha_retiro %}{{ i.fecha_retiro }}{% else %}-{% endif %}</td>
+            <td>
+                {% if not i.retirado %}
+                    <a href="{% url 'registrar_egreso' i.id %}">Registrar retiro</a>
+                {% else %}
+                    Retirado
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="{% url 'home' %}">Volver al menú</a></p>
+</body>
+</html>

@@ -16,6 +16,7 @@
         <ul>
             <li><a href="/vehiculos/lista/">Ver vehículos en el sistema</a></li>
             <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso al playón</a></li>
+            <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
             <li><a href="/admin/">Ir al administrador de Django</a></li>
             <li>En el futuro: gestión de usuarios, roles, configuración, etc.</li>
         </ul>
@@ -32,10 +33,12 @@
    {% if es_encargado_playon %}
     <h2>Módulo del Encargado del Playón</h2>
     <ul>
-        <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos en el sistema</a></li>
-        <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso al playón</a></li>
+        <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
+        <li><a href="{% url 'lista_ingresos' %}">Ver ingresos y retiros</a></li>
+        <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
     </ul>
     {% endif %}
+
 
 
     {% if es_juez %}
