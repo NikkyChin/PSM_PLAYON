@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tablero del Playón</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .grid {
+      display: grid;
+      grid-template-columns: 60px repeat(15, 80px);
+      gap: 6px;
+      align-items: stretch;
+    }
+    .head {
+      font-weight: bold;
+      text-align: center;
+      padding: 6px 0;
+    }
+    .rowhead {
+      font-weight: bold;
+      text-align: center;
+      padding: 10px 0;
+      border: 1px solid #ddd;
+      background: #f6f6f6;
+    }
+    .cell {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      min-height: 58px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .libre { background: #e8f5e9; }
+    .ocupado { background: #ffebee; }
+    .fuera { background: #eeeeee; }
+    .tag { font-size: 12px; opacity: 0.85; }
+    .dominio { font-weight: bold; margin-top: 4px; }
+    .codigo { font-size: 12px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <h1>Tablero del Playón</h1>
+
+  <div class="grid">
+    <div class="head"></div>
+    {% for c in columnas %}
+      <div class="head">{{ c }}</div>
+    {% endfor %}
+
+    {% for fila in tablero %}
+      <div class="rowhead">{{ fila.fila }}</div>
+
+      {% for celda in fila.celdas %}
+        {% with lugar=celda.lugar ingreso=celda.ingreso %}
+          {% if lugar %}
+            <a href="{% url 'detalle_lugar' lugar.id %}" style="text-decoration:none; color:inherit;">
+                <div class="cell
+                {% if lugar.estado == 'LIBRE' %}libre{% endif %}
+                {% if lugar.estado == 'OCUPADO' %}ocupado{% endif %}
+                {% if lugar.estado == 'FUERA' %}fuera{% endif %}
+                ">
+                <div class="codigo">{{ lugar.codigo }}</div>
+                <div class="tag">{{ lugar.tipo }}</div>
+
+                {% if lugar.estado == 'OCUPADO' and ingreso %}
+                    <div class="dominio">{{ ingreso.vehiculo.dominio }}</div>
+                    <div class="tag">Legajo: {{ ingreso.nro_legajo_playon }}</div>
+                {% elif lugar.estado == 'OCUPADO' %}
+                    <div class="tag">(ocupado sin ingreso activo)</div>
+                {% endif %}
+                </div>
+            </a>
+          {% else %}
+            <div class="cell fuera">
+              <div class="tag">Sin lugar</div>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <p style="margin-top:16px;">
+    <a href="{% url 'home' %}">Volver al menú principal</a>
+  </p>
+</body>
+</html>

@@ -1,9 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from .models import Vehiculo, IngresoPlayon
+from .models import Vehiculo, IngresoPlayon, MovimientoLugar, LugarPlayon
 from .forms import IngresoPlayonForm, EgresoPlayonForm
-from .models import MovimientoLugar
+import string
 
 
 
@@ -161,3 +161,80 @@ def detalle_ingreso(request, ingreso_id):
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
 
     return render(request, "vehiculos/detalle_ingreso.html", {"ingreso": ingreso})
+
+@login_required
+def tablero_playon(request):
+    # lugares ordenados A1..Z15
+    lugares = list(LugarPlayon.objects.all().order_by("fila", "columna"))
+
+    # ingresos activos (no retirados) con lugar asignado
+    ingresos_activos = (
+        IngresoPlayon.objects
+        .filter(retirado=False, lugar__isnull=False)
+        .select_related("vehiculo", "lugar")
+    )
+
+    # mapa: lugar_id -> ingreso activo
+    ocupacion = {ing.lugar_id: ing for ing in ingresos_activos}
+
+    # armamos matriz A-Z / 1-15
+    filas = list(string.ascii_uppercase)  # A..Z
+    columnas = list(range(1, 16))         # 1..15
+
+    # mapa rápido: (fila, col) -> LugarPlayon
+    lugares_map = {(l.fila, l.columna): l for l in lugares}
+
+    tablero = []
+    for f in filas:
+        fila_celdas = []
+        for c in columnas:
+            lugar = lugares_map.get((f, c))
+            ingreso = ocupacion.get(lugar.id) if lugar else None
+            fila_celdas.append({"lugar": lugar, "ingreso": ingreso})
+        tablero.append({"fila": f, "celdas": fila_celdas})
+
+    return render(
+        request,
+        "vehiculos/tablero_playon.html",
+        {"tablero": tablero, "columnas": columnas},
+    )
+
+@login_required
+def detalle_lugar(request, lugar_id):
+    lugar = get_object_or_404(LugarPlayon, id=lugar_id)
+
+    # ingreso activo (si lo hay)
+    ingreso_activo = (
+        IngresoPlayon.objects
+        .filter(lugar=lugar, retirado=False)
+        .select_related("vehiculo", "recibido_por", "entregado_por")
+        .first()
+    )
+
+    # historial de ingresos (últimos 20) en ese lugar
+    historial_ingresos = (
+        IngresoPlayon.objects
+        .filter(lugar=lugar)
+        .select_related("vehiculo")
+        .order_by("-fecha_ingreso")[:20]
+    )
+
+    movimientos = []
+    if ingreso_activo:
+        movimientos = (
+            MovimientoLugar.objects
+            .filter(ingreso=ingreso_activo)
+            .select_related("movido_por", "lugar_anterior", "lugar_nuevo")
+            .order_by("-fecha")[:50]
+        )
+
+    return render(
+        request,
+        "vehiculos/detalle_lugar.html",
+        {
+            "lugar": lugar,
+            "ingreso_activo": ingreso_activo,
+            "historial_ingresos": historial_ingresos,
+            "movimientos": movimientos,
+        },
+    )

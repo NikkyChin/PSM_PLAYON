@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle {{ lugar.codigo }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0; }
+    .muted { opacity: 0.75; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align:left; }
+  </style>
+</head>
+<body>
+
+  <h1>Detalle del lugar {{ lugar.codigo }}</h1>
+  <p class="muted">Estado: <b>{{ lugar.estado }}</b> | Tipo: <b>{{ lugar.tipo }}</b></p>
+
+  <div class="card">
+    <h2>Ingreso activo</h2>
+    {% if ingreso_activo %}
+      <p><b>Dominio:</b> {{ ingreso_activo.vehiculo.dominio }}</p>
+      <p><b>Legajo:</b> {{ ingreso_activo.nro_legajo_playon }}</p>
+      <p><b>Fecha ingreso:</b> {{ ingreso_activo.fecha_ingreso }}</p>
+      <p><b>Recibido por:</b> {{ ingreso_activo.recibido_por }}</p>
+      <p><b>Ubicación interna (texto):</b> {{ ingreso_activo.ubicacion_interna|default:"-" }}</p>
+    {% else %}
+      <p class="muted">No hay un ingreso activo en este lugar.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Movimientos (del ingreso activo)</h2>
+    {% if movimientos %}
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>De</th>
+            <th>A</th>
+            <th>Usuario</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in movimientos %}
+            <tr>
+              <td>{{ m.fecha }}</td>
+              <td>{{ m.lugar_anterior|default:"-" }}</td>
+              <td>{{ m.lugar_nuevo }}</td>
+              <td>{{ m.movido_por }}</td>
+              <td>{{ m.motivo|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">Sin movimientos para mostrar.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Historial de ingresos en este lugar (últimos 20)</h2>
+    {% if historial_ingresos %}
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha ingreso</th>
+            <th>Dominio</th>
+            <th>Legajo</th>
+            <th>Retirado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in historial_ingresos %}
+            <tr>
+              <td>{{ i.fecha_ingreso }}</td>
+              <td>{{ i.vehiculo.dominio }}</td>
+              <td>{{ i.nro_legajo_playon }}</td>
+              <td>{% if i.retirado %}Sí{% else %}No{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">Todavía no hay ingresos registrados en este lugar.</p>
+    {% endif %}
+  </div>
+
+  <p>
+    <a href="{% url 'tablero_playon' %}">⬅ Volver al tablero</a>
+  </p>
+
+</body>
+</html>

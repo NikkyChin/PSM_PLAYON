@@ -14,9 +14,11 @@
     {% if es_admin_sistema %}
         <h2>Panel de Administración</h2>
         <ul>
-            <li><a href="/vehiculos/lista/">Ver vehículos en el sistema</a></li>
-            <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso al playón</a></li>
+            <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
+            <li><a href="{% url 'ingresos_en_playon' %}">Ver vehículos en el playón</a></li>
+            <li><a href="{% url 'retiros_playon' %}">Ver retiros del playón</a></li>
             <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
+            <li><a href="{% url 'tablero_playon' %}">Ver tablero de lugares del playón</a></li>
             <li><a href="/admin/">Ir al administrador de Django</a></li>
             <li>En el futuro: gestión de usuarios, roles, configuración, etc.</li>
         </ul>
@@ -37,6 +39,7 @@
             <li><a href="{% url 'ingresos_en_playon' %}">Ver vehículos en el playón</a></li>
             <li><a href="{% url 'retiros_playon' %}">Ver retiros del playón</a></li>
             <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
+            <li><a href="{% url 'tablero_playon' %}">Ver tablero de lugares del playón</a></li>
         </ul>
     {% endif %}
 
