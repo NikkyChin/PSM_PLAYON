@@ -2,6 +2,7 @@ from django import forms
 from .models import IngresoPlayon, LugarPlayon
 
 
+
 class IngresoPlayonForm(forms.ModelForm):
     dominio = forms.CharField(label="Dominio (patente)", max_length=10)
 
@@ -40,6 +41,16 @@ class IngresoPlayonForm(forms.ModelForm):
 
         self.fields["lugar"].queryset = qs
         self.fields["lugar"].required = False  # por ahora opcional (hasta que tu jefe diga si es obligatorio)
+
+    def clean_lugar(self):
+        lugar = self.cleaned_data.get("lugar")
+        if not lugar:
+            return lugar
+
+        if lugar.estado != "LIBRE":
+            raise forms.ValidationError("Ese lugar ya no está libre. Elegí otro.")
+
+        return lugar
 
 
 class EgresoPlayonForm(forms.ModelForm):

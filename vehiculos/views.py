@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Vehiculo, IngresoPlayon
 from .forms import IngresoPlayonForm, EgresoPlayonForm
+from .models import MovimientoLugar
 
 
 
@@ -45,7 +46,21 @@ def nuevo_ingreso_playon(request):
             ingreso.recibido_por = request.user
             ingreso.save()
 
+            # 👉 1️⃣ marcar lugar como ocupado
+            if ingreso.lugar:
+                ingreso.lugar.estado = "OCUPADO"
+                ingreso.lugar.save()
+
+                # 👉 2️⃣ registrar movimiento
+                MovimientoLugar.objects.create(
+                    ingreso=ingreso,
+                    lugar_anterior=None,
+                    lugar_nuevo=ingreso.lugar,
+                    movido_por=request.user,
+                    motivo="Ingreso al playón",
+                )
             return redirect("lista_vehiculos")
+
         else:
             print("❌ FORMULARIO NO VÁLIDO:", form.errors)
     else:
@@ -85,6 +100,21 @@ def registrar_egreso(request, ingreso_id):
             egreso.fecha_retiro = timezone.now()
             egreso.entregado_por = request.user
             egreso.save()
+
+            # 👉 1️⃣ registrar movimiento de salida
+            if egreso.lugar:
+                MovimientoLugar.objects.create(
+                    ingreso=egreso,
+                    lugar_anterior=egreso.lugar,
+                    lugar_nuevo=egreso.lugar,
+                    movido_por=request.user,
+                    motivo="Egreso (retiro del playón)",
+                )
+
+                # 👉 2️⃣ liberar el lugar
+                egreso.lugar.estado = "LIBRE"
+                egreso.lugar.save()
+
             return redirect("lista_ingresos")
     else:
         form = EgresoPlayonForm(instance=ingreso)
