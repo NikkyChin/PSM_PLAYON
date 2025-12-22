@@ -1,0 +1,50 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PSM Playón{% endblock %}</title>
+
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <div class="brand">
+        <div class="brand__logo">🚗</div>
+        <div class="brand__text">
+          <div class="brand__title">PSM Playón</div>
+          <div class="brand__sub">Depósito municipal</div>
+        </div>
+      </div>
+
+      <nav class="topnav">
+        <a class="topnav__link" href="{% url 'home' %}">Inicio</a>
+        <a class="topnav__link" href="{% url 'tablero_playon' %}">Tablero</a>
+        <a class="topnav__link" href="{% url 'lista_ingresos' %}">Ingresos</a>
+      </nav>
+
+      <div class="userbox">
+        {% if request.user.is_authenticated %}
+          <span class="userbox__name">{{ request.user.username }}</span>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn--ghost" type="submit">Salir</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>PSM Playón • Interno municipal</span>
+    </div>
+  </footer>
+</body>
+</html>

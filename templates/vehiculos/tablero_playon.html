@@ -1,109 +1,68 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Tablero del Playón</title>
-  <style>
-    body { font-family: Arial, sans-serif; }
+{% extends "base.html" %}
 
-    .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0; }
-    .pill { display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid #ddd; margin-right:8px; }
+{% block title %}Tablero del Playón{% endblock %}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 60px repeat(15, 80px);
-      gap: 6px;
-      align-items: stretch;
-    }
-    .head {
-      font-weight: bold;
-      text-align: center;
-      padding: 6px 0;
-    }
-    .rowhead {
-      font-weight: bold;
-      text-align: center;
-      padding: 10px 0;
-      border: 1px solid #ddd;
-      background: #f6f6f6;
-    }
-    .cell {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 8px;
-      min-height: 58px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-    }
-    .libre { background: #e8f5e9; }
-    .ocupado { background: #ffebee; }
-    .fuera { background: #eeeeee; }
-    .tag { font-size: 12px; opacity: 0.85; }
-    .dominio { font-weight: bold; margin-top: 4px; }
-    .codigo { font-size: 12px; opacity: 0.8; }
-  </style>
-</head>
-<body>
-
-  <h1>Tablero del Playón</h1>
-
-  <!-- ✅ Resumen -->
+{% block content %}
   <div class="card">
-    <h2 style="margin:0 0 10px 0;">Resumen del playón</h2>
-    <span class="pill"><b>Total:</b> {{ total_lugares }}</span>
-    <span class="pill"><b>Libres:</b> {{ lugares_libres }}</span>
-    <span class="pill"><b>Ocupados:</b> {{ lugares_ocupados }}</span>
-    <span class="pill"><b>Fuera:</b> {{ lugares_fuera }}</span>
-    <span class="pill"><b>Ocupación:</b> {{ ocupacion_pct }}%</span>
+    <div class="h1">Tablero del Playón</div>
+    <div class="muted">Vista general de ocupación por ubicación.</div>
+
+    <div class="pills">
+      <span class="pill"><b>Total:</b> {{ total_lugares }}</span>
+      <span class="pill"><b>Libres:</b> {{ lugares_libres }}</span>
+      <span class="pill"><b>Ocupados:</b> {{ lugares_ocupados }}</span>
+      <span class="pill"><b>Fuera:</b> {{ lugares_fuera }}</span>
+      <span class="pill"><b>Ocupación:</b> {{ ocupacion_pct }}%</span>
+    </div>
   </div>
 
-  <!-- ✅ Tablero -->
-  <div class="grid">
+  <div class="card">
+    <div class="muted" style="margin-bottom:10px;">
+      Leyenda:
+      <span class="pill" style="margin-left:8px;"><b style="color:var(--ok);">●</b> Libre</span>
+      <span class="pill"><b style="color:var(--bad);">●</b> Ocupado</span>
+      <span class="pill"><b style="color:var(--neutral);">●</b> Fuera</span>
+    </div>
 
-    <div class="head"></div>
-    {% for c in columnas %}
-      <div class="head">{{ c }}</div>
-    {% endfor %}
+    <div class="board-wrap">
+      <div class="grid">
+        <div class="head"></div>
+        {% for c in columnas %}
+          <div class="head">{{ c }}</div>
+        {% endfor %}
 
-    {% for fila in tablero %}
-      <div class="rowhead">{{ fila.fila }}</div>
+        {% for fila in tablero %}
+          <div class="rowhead">{{ fila.fila }}</div>
 
-      {% for celda in fila.celdas %}
-        {% with lugar=celda.lugar ingreso=celda.ingreso %}
-          {% if lugar %}
-            <a href="{% url 'detalle_lugar' lugar.id %}" style="text-decoration:none; color:inherit;">
-              <div class="cell
-                {% if lugar.estado == 'LIBRE' %}libre{% endif %}
-                {% if lugar.estado == 'OCUPADO' %}ocupado{% endif %}
-                {% if lugar.estado == 'FUERA' %}fuera{% endif %}
-              ">
-                <div class="codigo">{{ lugar.codigo }}</div>
-                <div class="tag">{{ lugar.tipo }}</div>
+          {% for celda in fila.celdas %}
+            {% with lugar=celda.lugar ingreso=celda.ingreso %}
+              {% if lugar %}
+                <a class="cell--link" href="{% url 'detalle_lugar' lugar.id %}">
+                  <div class="cell
+                    {% if lugar.estado == 'LIBRE' %}libre{% endif %}
+                    {% if lugar.estado == 'OCUPADO' %}ocupado{% endif %}
+                    {% if lugar.estado == 'FUERA' %}fuera{% endif %}
+                  ">
+                    <div class="codigo">{{ lugar.codigo }}</div>
+                    <div class="tag">{{ lugar.get_tipo_display }}</div>
 
-                {% if lugar.estado == 'OCUPADO' and ingreso %}
-                  <div class="dominio">{{ ingreso.vehiculo.dominio }}</div>
-                  <div class="tag">Legajo: {{ ingreso.nro_legajo_playon }}</div>
-                {% elif lugar.estado == 'OCUPADO' %}
-                  <div class="tag">(ocupado sin ingreso activo)</div>
-                {% endif %}
-              </div>
-            </a>
-          {% else %}
-            <div class="cell fuera">
-              <div class="tag">Sin lugar</div>
-            </div>
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-    {% endfor %}
-
+                    {% if lugar.estado == 'OCUPADO' and ingreso %}
+                      <div class="dominio">{{ ingreso.vehiculo.dominio }}</div>
+                      <div class="tag">Legajo: {{ ingreso.nro_legajo_playon }}</div>
+                    {% elif lugar.estado == 'OCUPADO' %}
+                      <div class="tag">(ocupado sin ingreso activo)</div>
+                    {% endif %}
+                  </div>
+                </a>
+              {% else %}
+                <div class="cell fuera">
+                  <div class="tag">Sin lugar</div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
   </div>
-
-  <p style="margin-top:16px;">
-    <a href="{% url 'home' %}">Volver al menú principal</a>
-  </p>
-
-</body>
-</html>
+{% endblock %}

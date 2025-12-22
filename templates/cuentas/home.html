@@ -1,65 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Inicio - PSM Playón</title>
-</head>
-<body>
-    <h1>Playón Municipal - Sistema Interno</h1>
+{% extends "base.html" %}
 
-    <p>Usuario logueado: <strong>{{ request.user.username }}</strong></p>
+{% block title %}Inicio - PSM Playón{% endblock %}
 
-    <hr>
+{% block content %}
+  <div class="card">
+    <div class="h1">Playón Municipal — Sistema Interno</div>
+    <div class="muted">
+      Sesión iniciada como <b style="color:var(--text)">{{ request.user.username }}</b>
+    </div>
 
-    {% if es_admin_sistema %}
-        <h2>Panel de Administración</h2>
-        <ul>
-            <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
-            <li><a href="{% url 'ingresos_en_playon' %}">Ver vehículos en el playón</a></li>
-            <li><a href="{% url 'retiros_playon' %}">Ver retiros del playón</a></li>
-            <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
-            <li><a href="{% url 'tablero_playon' %}">Ver tablero de lugares del playón</a></li>
-            <li><a href="/admin/">Ir al administrador de Django</a></li>
-            <li>En el futuro: gestión de usuarios, roles, configuración, etc.</li>
-        </ul>
-    {% endif %}
+    <div class="pills">
+      {% if es_admin_sistema %}<span class="pill"><b>Rol:</b> Admin</span>{% endif %}
+      {% if es_encargado_playon %}<span class="pill"><b>Rol:</b> Encargado</span>{% endif %}
+      {% if es_inspector %}<span class="pill"><b>Rol:</b> Inspector</span>{% endif %}
+      {% if es_juez %}<span class="pill"><b>Rol:</b> Juez</span>{% endif %}
+    </div>
+  </div>
 
-    {% if es_inspector %}
-        <h2>Módulo de Inspector</h2>
-        <ul>
-            <li>Registrar nueva infracción y secuestro</li>
-            <li>Ver mis infracciones</li>
-        </ul>
-    {% endif %}
+  {% if not es_inspector and not es_encargado_playon and not es_juez and not es_admin_sistema %}
+    <div class="card">
+      <div class="h2">Sin rol asignado</div>
+      <p class="muted" style="margin-top:6px;">
+        No tenés ningún rol asignado todavía. Pedí a un administrador que te asigne uno.
+      </p>
+    </div>
+  {% endif %}
 
-    {% if es_encargado_playon %}
-        <h2>Módulo del Encargado del Playón</h2>
-        <ul>
-            <li><a href="{% url 'lista_vehiculos' %}">Ver vehículos registrados</a></li>
-            <li><a href="{% url 'ingresos_en_playon' %}">Ver vehículos en el playón</a></li>
-            <li><a href="{% url 'retiros_playon' %}">Ver retiros del playón</a></li>
-            <li><a href="{% url 'nuevo_ingreso_playon' %}">Registrar ingreso</a></li>
-            <li><a href="{% url 'tablero_playon' %}">Ver tablero de lugares del playón</a></li>
-        </ul>
-    {% endif %}
+  {% if es_admin_sistema or es_encargado_playon %}
+    <div class="card">
+      <div class="h2">Acciones rápidas</div>
+      <div class="muted">Lo más usado del día a día.</div>
 
+      <div class="grid-actions">
+        <a class="action" href="{% url 'tablero_playon' %}">
+          <div class="action__icon">🧩</div>
+          <div class="action__title">Tablero del playón</div>
+          <div class="action__desc">Ver ocupación por lugares (A-Z / 1-15).</div>
+        </a>
 
+        <a class="action" href="{% url 'nuevo_ingreso_playon' %}">
+          <div class="action__icon">➕</div>
+          <div class="action__title">Registrar ingreso</div>
+          <div class="action__desc">Ingresar vehículo y asignar lugar.</div>
+        </a>
 
+        <a class="action" href="{% url 'ingresos_en_playon' %}">
+          <div class="action__icon">📦</div>
+          <div class="action__title">Vehículos en playón</div>
+          <div class="action__desc">Listado de ingresos activos (no retirados).</div>
+        </a>
 
-    {% if es_juez %}
-        <h2>Módulo de Juzgado de Faltas</h2>
-        <ul>
-            <li>Ver vehículos en infracción</li>
-            <li>Dar alta para retiro</li>
-            <li>Ver historial de un vehículo</li>
-        </ul>
-    {% endif %}
+        <a class="action" href="{% url 'retiros_playon' %}">
+          <div class="action__icon">✅</div>
+          <div class="action__title">Historial de retiros</div>
+          <div class="action__desc">Ver egresos con fecha y responsable.</div>
+        </a>
 
-    {% if not es_inspector and not es_playon and not es_juez and not es_admin_sistema %}
-        <p>No tenés ningún rol asignado todavía. Pedí a un administrador que te asigne uno.</p>
-    {% endif %}
+        <a class="action" href="{% url 'lista_vehiculos' %}">
+          <div class="action__icon">🚗</div>
+          <div class="action__title">Vehículos registrados</div>
+          <div class="action__desc">Búsqueda por dominio, modelo, etc.</div>
+        </a>
 
-    <hr>
-    <p><a href="{% url 'logout' %}">Cerrar sesión</a></p>
-</body>
-</html>
+        {% if es_admin_sistema %}
+          <a class="action" href="/admin/">
+            <div class="action__icon">🛠️</div>
+            <div class="action__title">Admin Django</div>
+            <div class="action__desc">Usuarios, modelos y auditoría.</div>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if es_inspector %}
+    <div class="card">
+      <div class="h2">Módulo Inspector</div>
+      <p class="muted">Pendiente para próximas etapas.</p>
+
+      <div class="grid-actions">
+        <div class="action action--disabled">
+          <div class="action__icon">📝</div>
+          <div class="action__title">Registrar infracción</div>
+          <div class="action__desc">Alta de acta, fotos y datos del conductor.</div>
+        </div>
+
+        <div class="action action--disabled">
+          <div class="action__icon">🔎</div>
+          <div class="action__title">Mis infracciones</div>
+          <div class="action__desc">Ver historial propio.</div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if es_juez %}
+    <div class="card">
+      <div class="h2">Módulo Juzgado de Faltas</div>
+      <p class="muted">Pendiente para próximas etapas.</p>
+
+      <div class="grid-actions">
+        <div class="action action--disabled">
+          <div class="action__icon">⚖️</div>
+          <div class="action__title">Autorizar retiro</div>
+          <div class="action__desc">Alta judicial para egreso.</div>
+        </div>
+
+        <div class="action action--disabled">
+          <div class="action__icon">📚</div>
+          <div class="action__title">Historial por vehículo</div>
+          <div class="action__desc">Reincidencias y registros.</div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div style="margin-top: 10px;">
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="btn btn--ghost" type="submit">Cerrar sesión</button>
+    </form>
+  </div>
+{% endblock %}
