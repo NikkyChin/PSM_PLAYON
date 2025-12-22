@@ -39,10 +39,21 @@
     .tag { font-size: 12px; opacity: 0.85; }
     .dominio { font-weight: bold; margin-top: 4px; }
     .codigo { font-size: 12px; opacity: 0.8; }
+    .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid #ddd; margin-right:8px; }
   </style>
 </head>
 <body>
   <h1>Tablero del Playón</h1>
+
+  <div class="card">
+    <h2 style="margin:0 0 10px 0;">Resumen del playón</h2>
+    <span class="pill"><b>Total:</b> {{ total_lugares }}</span>
+    <span class="pill"><b>Libres:</b> {{ lugares_libres }}</span>
+    <span class="pill"><b>Ocupados:</b> {{ lugares_ocupados }}</span>
+    <span class="pill"><b>Fuera:</b> {{ lugares_fuera }}</span>
+    <span class="pill"><b>Ocupación:</b> {{ ocupacion_pct }}%</span>
+  </div>
 
   <div class="grid">
     <div class="head"></div>

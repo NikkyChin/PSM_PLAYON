@@ -213,11 +213,29 @@ def tablero_playon(request):
             fila_celdas.append({"lugar": lugar, "ingreso": ingreso})
         tablero.append({"fila": f, "celdas": fila_celdas})
 
-    return render(
+        # ✅ contadores
+        total_lugares = len(lugares)
+        lugares_libres = sum(1 for l in lugares if l.estado == "LIBRE")
+        lugares_ocupados = sum(1 for l in lugares if l.estado == "OCUPADO")
+        lugares_fuera = sum(1 for l in lugares if l.estado == "FUERA")
+
+        # porcentaje ocupación (opcional)
+        ocupacion_pct = round((lugares_ocupados / total_lugares) * 100, 1) if total_lugares else 0
+
+        return render(
         request,
         "vehiculos/tablero_playon.html",
-        {"tablero": tablero, "columnas": columnas},
+        {
+            "tablero": tablero,
+            "columnas": columnas,
+            "total_lugares": total_lugares,
+            "lugares_libres": lugares_libres,
+            "lugares_ocupados": lugares_ocupados,
+            "lugares_fuera": lugares_fuera,
+            "ocupacion_pct": ocupacion_pct,
+        },
     )
+
 
 @login_required
 def detalle_lugar(request, lugar_id):
