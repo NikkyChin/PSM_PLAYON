@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Vehiculo, IngresoPlayon, MovimientoLugar, LugarPlayon
@@ -38,8 +39,27 @@ def nuevo_ingreso_playon(request):
                     "modelo": form.cleaned_data.get("modelo", ""),
                     "color": form.cleaned_data.get("color", ""),
                     "anio": form.cleaned_data.get("anio"),
+                    "nro_chasis": form.cleaned_data.get("nro_chasis", ""),
+                    "nro_motor": form.cleaned_data.get("nro_motor", ""),
                 },
             )
+            
+            # si ya existía, actualizamos si nos mandaron valores
+            nro_chasis = (form.cleaned_data.get("nro_chasis") or "").strip()
+            nro_motor = (form.cleaned_data.get("nro_motor") or "").strip()
+
+            cambios = False
+            if nro_chasis and not vehiculo.nro_chasis:
+                vehiculo.nro_chasis = nro_chasis
+                cambios = True
+
+            if nro_motor and not vehiculo.nro_motor:
+                vehiculo.nro_motor = nro_motor
+                cambios = True
+
+            if cambios:
+                vehiculo.save()
+
 
             ingreso = form.save(commit=False)
             ingreso.vehiculo = vehiculo
@@ -237,4 +257,63 @@ def detalle_lugar(request, lugar_id):
             "historial_ingresos": historial_ingresos,
             "movimientos": movimientos,
         },
+    )
+
+@require_POST
+@login_required
+def marcar_lugar_fuera(request, lugar_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    lugar = get_object_or_404(LugarPlayon, id=lugar_id)
+
+    # No permitir si hay ingreso activo ocupando ese lugar
+    ocupado = IngresoPlayon.objects.filter(lugar=lugar, retirado=False).exists()
+    if ocupado:
+        # Si querés, más adelante lo mostramos bonito con messages framework
+        return redirect("detalle_lugar", lugar_id=lugar.id)
+
+    lugar.estado = "FUERA"
+    lugar.save()
+    return redirect("detalle_lugar", lugar_id=lugar.id)
+
+
+@require_POST
+@login_required
+def reactivar_lugar(request, lugar_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    lugar = get_object_or_404(LugarPlayon, id=lugar_id)
+
+    ocupado = IngresoPlayon.objects.filter(lugar=lugar, retirado=False).exists()
+    if ocupado:
+        return redirect("detalle_lugar", lugar_id=lugar.id)
+
+    lugar.estado = "LIBRE"
+    lugar.save()
+    return redirect("detalle_lugar", lugar_id=lugar.id)
+
+
+@login_required
+def detalle_vehiculo(request, vehiculo_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
+
+    # historial de ingresos de ese vehículo (últimos 20)
+    ingresos = (
+        vehiculo.ingresos
+        .select_related("lugar", "recibido_por", "entregado_por")
+        .order_by("-fecha_ingreso")[:20]
+    )
+
+    return render(
+        request,
+        "vehiculos/detalle_vehiculo.html",
+        {"vehiculo": vehiculo, "ingresos": ingresos},
     )

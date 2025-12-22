@@ -14,4 +14,9 @@ urlpatterns = [
     path("playon/tablero/", views.tablero_playon, name="tablero_playon"),
     path("playon/lugar/<int:lugar_id>/", views.detalle_lugar, name="detalle_lugar"),
 
+    path("playon/lugar/<int:lugar_id>/fuera/", views.marcar_lugar_fuera, name="marcar_lugar_fuera"),
+    path("playon/lugar/<int:lugar_id>/reactivar/", views.reactivar_lugar, name="reactivar_lugar"),
+
+    path("vehiculo/<int:vehiculo_id>/", views.detalle_vehiculo, name="detalle_vehiculo"),
+
 ]

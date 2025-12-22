@@ -9,23 +9,65 @@
     .muted { opacity: 0.75; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #eee; padding: 8px; text-align:left; }
+    button { margin: 6px 0; }
   </style>
 </head>
 <body>
 
   <h1>Detalle del lugar {{ lugar.codigo }}</h1>
-  <p class="muted">Estado: <b>{{ lugar.estado }}</b> | Tipo: <b>{{ lugar.tipo }}</b></p>
+  <p class="muted">
+    Estado: <b>{{ lugar.get_estado_display }}</b> |
+    Tipo: <b>{{ lugar.get_tipo_display }}</b>
+  </p>
 
   <div class="card">
-    <h2>Ingreso activo</h2>
-    {% if ingreso_activo %}
-      <p><b>Dominio:</b> {{ ingreso_activo.vehiculo.dominio }}</p>
-      <p><b>Legajo:</b> {{ ingreso_activo.nro_legajo_playon }}</p>
-      <p><b>Fecha ingreso:</b> {{ ingreso_activo.fecha_ingreso }}</p>
-      <p><b>Recibido por:</b> {{ ingreso_activo.recibido_por }}</p>
-      <p><b>Ubicación interna (texto):</b> {{ ingreso_activo.ubicacion_interna|default:"-" }}</p>
+    <h2>Acciones del lugar</h2>
+
+    {% if lugar.estado != "FUERA" %}
+      <form method="post" action="{% url 'marcar_lugar_fuera' lugar.id %}">
+        {% csrf_token %}
+        <button type="submit">⛔ Marcar FUERA de servicio</button>
+      </form>
     {% else %}
-      <p class="muted">No hay un ingreso activo en este lugar.</p>
+      <form method="post" action="{% url 'reactivar_lugar' lugar.id %}">
+        {% csrf_token %}
+        <button type="submit">✅ Reactivar (volver a LIBRE)</button>
+      </form>
+    {% endif %}
+
+    <hr>
+
+    {% if ingreso_activo %}
+      {% if lugar.estado == "FUERA" %}
+        <p class="muted">
+          Este lugar está <b>FUERA de servicio</b>. No se permiten acciones sobre el ingreso desde aquí.
+        </p>
+      {% else %}
+        {% if not ingreso_activo.retirado %}
+          <form method="get" action="{% url 'registrar_egreso' ingreso_activo.id %}">
+            <button type="submit">🚗 Marcar retiro del vehículo</button>
+          </form>
+        {% endif %}
+
+        <form method="get" action="{% url 'detalle_ingreso' ingreso_activo.id %}">
+          <button type="submit">📄 Ver ingreso completo</button>
+        </form>
+
+        <form method="get" action="{% url 'detalle_vehiculo' ingreso_activo.vehiculo.id %}">
+          <button type="submit">🔍 Ver datos del vehículo</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p>No hay acciones disponibles para este lugar.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    {% if ingreso_activo %}
+      <h2>Ingreso activo (detalle)</h2>
+      {% include "vehiculos/_ingreso_detalle_bloque.html" with ingreso=ingreso_activo %}
+    {% else %}
+      <p>No hay ingreso activo en este lugar.</p>
     {% endif %}
   </div>
 

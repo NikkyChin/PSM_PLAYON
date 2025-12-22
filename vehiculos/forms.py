@@ -5,6 +5,9 @@ from .models import IngresoPlayon, LugarPlayon
 
 class IngresoPlayonForm(forms.ModelForm):
     dominio = forms.CharField(label="Dominio (patente)", max_length=10)
+    nro_chasis = forms.CharField(label="N° de chasis", max_length=50, required=False)
+    nro_motor = forms.CharField(label="N° de motor", max_length=50, required=False)
+
 
     class Meta:
         model = IngresoPlayon
