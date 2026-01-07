@@ -1,53 +1,106 @@
-<h2>Datos del vehículo</h2>
-<ul>
-  <li><strong>Dominio:</strong> {{ ingreso.vehiculo.dominio }}</li>
-  <li><strong>Marca:</strong> {{ ingreso.vehiculo.marca }}</li>
-  <li><strong>Modelo:</strong> {{ ingreso.vehiculo.modelo }}</li>
-  <li><strong>Color:</strong> {{ ingreso.vehiculo.color }}</li>
-  <li><strong>Año:</strong> {{ ingreso.vehiculo.anio }}</li>
-  <li><strong>N° Chasis:</strong> {{ ingreso.vehiculo.nro_chasis }}</li>
-  <li><strong>N° Motor:</strong> {{ ingreso.vehiculo.nro_motor }}</li>
-</ul>
+<div class="card" style="margin: 0; padding: 0; background: transparent; border: 0; box-shadow:none;">
+  <!-- VEHICULO -->
+  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+    <div class="h2">Datos del vehículo</div>
+    <div class="muted" style="font-size:12px;">
+      Dominio: <b style="color:var(--text)">{{ ingreso.vehiculo.dominio }}</b>
+    </div>
+  </div>
+  <hr class="hr">
 
-<h2>Datos de ingreso al playón</h2>
-<ul>
-  <li><strong>Fecha ingreso:</strong> {{ ingreso.fecha_ingreso }}</li>
-  <li><strong>Tipo de vehículo:</strong> {{ ingreso.get_tipo_vehiculo_display }}</li>
-  <li><strong>Lugar de la infracción:</strong> {{ ingreso.lugar_infraccion }}</li>
-  <li><strong>N° legajo playón:</strong> {{ ingreso.nro_legajo_playon }}</li>
-  <li><strong>Recibido por:</strong> {{ ingreso.recibido_por.username }}</li>
-  <li><strong>Ubicación interna:</strong> {{ ingreso.ubicacion_interna }}</li>
-  <li><strong>Lugar en playón (tablero):</strong> {{ ingreso.lugar|default:"-" }}</li>
-</ul>
+  <table class="table">
+    <tbody>
+      <tr><th>Dominio</th><td>{{ ingreso.vehiculo.dominio }}</td></tr>
+      <tr><th>Marca</th><td>{{ ingreso.vehiculo.marca|default:"-" }}</td></tr>
+      <tr><th>Modelo</th><td>{{ ingreso.vehiculo.modelo|default:"-" }}</td></tr>
+      <tr><th>Color</th><td>{{ ingreso.vehiculo.color|default:"-" }}</td></tr>
+      <tr><th>Año</th><td>{{ ingreso.vehiculo.anio|default:"-" }}</td></tr>
+      <tr><th>N° Chasis</th><td>{{ ingreso.vehiculo.nro_chasis|default:"-" }}</td></tr>
+      <tr><th>N° Motor</th><td>{{ ingreso.vehiculo.nro_motor|default:"-" }}</td></tr>
+    </tbody>
+  </table>
 
-<h2>Documentación anexada</h2>
-<ul>
-  <li>Acta de infracción: {{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</li>
-  <li>Acta de secuestro: {{ ingreso.acta_secuestro_recibida|yesno:"Sí,No" }}</li>
-  <li>Inventario de objetos visibles: {{ ingreso.inventario_objetos_visibles_recibido|yesno:"Sí,No" }}</li>
-  <li>Registro fotográfico: {{ ingreso.registro_fotografico_recibido|yesno:"Sí,No" }}</li>
-  <li>Prueba alcoholemia / test: {{ ingreso.get_prueba_alcoholemia_estado_display }}</li>
-</ul>
+  <div style="height:16px;"></div>
 
-<h2>Observaciones de ingreso</h2>
-<ul>
-  <li>¿Coincide inventario?: {{ ingreso.coincide_inventario|yesno:"Sí,No" }}</li>
-  <li>¿Coinciden daños registrados?: {{ ingreso.coinciden_danios_registrados|yesno:"Sí,No" }}</li>
-  <li><strong>Detalle daños no coincidentes:</strong> {{ ingreso.detalle_danios_no_coincidentes|default:"-" }}</li>
-  <li>Batería desconectada: {{ ingreso.bateria_desconectada|yesno:"Sí,No" }}</li>
-  <li><strong>Observaciones generales:</strong> {{ ingreso.observaciones_generales|default:"-" }}</li>
-</ul>
+  <!-- INGRESO -->
+  <div class="h2">Datos de ingreso al playón</div>
+  <hr class="hr">
 
-<h2>Datos de egreso / retiro</h2>
-{% if ingreso.retirado %}
-  <ul>
-    <li><strong>Retirado:</strong> Sí</li>
-    <li><strong>Fecha de retiro:</strong> {{ ingreso.fecha_retiro }}</li>
-    <li><strong>Entregado por:</strong> {{ ingreso.entregado_por.username }}</li>
-    <li><strong>Nombre de quien retira:</strong> {{ ingreso.nombre_retira }}</li>
-    <li><strong>DNI de quien retira:</strong> {{ ingreso.dni_retira }}</li>
-    <li><strong>Observaciones de egreso:</strong> {{ ingreso.observaciones_egreso|default:"-" }}</li>
-  </ul>
-{% else %}
-  <p>Este vehículo aún no fue retirado del playón.</p>
-{% endif %}
+  <table class="table">
+    <tbody>
+      <tr><th>Fecha ingreso</th><td>{{ ingreso.fecha_ingreso }}</td></tr>
+      <tr><th>Tipo de vehículo</th><td>{{ ingreso.get_tipo_vehiculo_display|default:"-" }}</td></tr>
+      <tr><th>Lugar de la infracción</th><td>{{ ingreso.lugar_infraccion|default:"-" }}</td></tr>
+      <tr><th>N° legajo playón</th><td>{{ ingreso.nro_legajo_playon }}</td></tr>
+      <tr><th>Recibido por</th><td>{{ ingreso.recibido_por.username }}</td></tr>
+
+      {% if ingreso.ubicacion_interna %}
+        <tr><th>Ubicación interna</th><td>{{ ingreso.ubicacion_interna }}</td></tr>
+      {% endif %}
+
+      <tr>
+        <th>Lugar en playón (tablero)</th>
+        <td>{% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="height:16px;"></div>
+
+  <!-- DOCS -->
+  <div class="h2">Documentación anexada</div>
+  <hr class="hr">
+
+  <table class="table">
+    <tbody>
+      <tr><th>Acta de infracción</th><td>{{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Acta de secuestro</th><td>{{ ingreso.acta_secuestro_recibida|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Inventario de objetos visibles</th><td>{{ ingreso.inventario_objetos_visibles_recibido|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Registro fotográfico</th><td>{{ ingreso.registro_fotografico_recibido|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Prueba alcoholemia / test</th><td>{{ ingreso.get_prueba_alcoholemia_estado_display|default:"-" }}</td></tr>
+    </tbody>
+  </table>
+
+  <div style="height:16px;"></div>
+
+  <!-- OBS -->
+  <div class="h2">Observaciones de ingreso</div>
+  <hr class="hr">
+
+  <table class="table">
+    <tbody>
+      <tr><th>¿Coincide inventario?</th><td>{{ ingreso.coincide_inventario|yesno:"Sí,No" }}</td></tr>
+      <tr><th>¿Coinciden daños registrados?</th><td>{{ ingreso.coinciden_danios_registrados|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Detalle daños no coincidentes</th><td>{{ ingreso.detalle_danios_no_coincidentes|default:"-" }}</td></tr>
+      <tr><th>Batería desconectada</th><td>{{ ingreso.bateria_desconectada|yesno:"Sí,No" }}</td></tr>
+      <tr><th>Observaciones generales</th><td>{{ ingreso.observaciones_generales|default:"-" }}</td></tr>
+    </tbody>
+  </table>
+
+  <div style="height:16px;"></div>
+
+  <!-- EGRESO -->
+  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+    <div class="h2">Datos de egreso / retiro</div>
+    {% if ingreso.retirado %}
+      <span class="pill"><b>Estado:</b> Retirado ✅</span>
+    {% else %}
+      <span class="pill"><b>Estado:</b> En playón 📦</span>
+    {% endif %}
+  </div>
+  <hr class="hr">
+
+  {% if ingreso.retirado %}
+    <table class="table">
+      <tbody>
+        <tr><th>Fecha de retiro</th><td>{{ ingreso.fecha_retiro|default:"-" }}</td></tr>
+        <tr><th>Entregado por</th><td>{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</td></tr>
+        <tr><th>Nombre de quien retira</th><td>{{ ingreso.nombre_retira|default:"-" }}</td></tr>
+        <tr><th>DNI de quien retira</th><td>{{ ingreso.dni_retira|default:"-" }}</td></tr>
+        <tr><th>Observaciones de egreso</th><td>{{ ingreso.observaciones_egreso|default:"-" }}</td></tr>
+      </tbody>
+    </table>
+  {% else %}
+    <div class="muted">Este vehículo aún no fue retirado del playón.</div>
+  {% endif %}
+</div>

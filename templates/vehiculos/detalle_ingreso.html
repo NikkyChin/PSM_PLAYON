@@ -1,24 +1,67 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Detalle del ingreso {{ ingreso.nro_legajo_playon }}</title>
-</head>
-<body>
-  <h1>Detalle del ingreso {{ ingreso.nro_legajo_playon }}</h1>
+{% extends "base.html" %}
 
-  {% include "vehiculos/_ingreso_detalle_bloque.html" with ingreso=ingreso %}
+{% block title %}Detalle ingreso {{ ingreso.nro_legajo_playon }}{% endblock %}
 
-  {% if not ingreso.retirado %}
-    <p>
-      <a href="{% url 'registrar_egreso' ingreso.id %}">Registrar retiro ahora</a>
+{% block content %}
+  <div class="card">
+    <div class="h1">Detalle del ingreso</div>
+    <div class="pills">
+      <span class="pill"><b>Legajo:</b> {{ ingreso.nro_legajo_playon }}</span>
+      <span class="pill"><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</span>
+
+      {% if ingreso.lugar %}
+        <span class="pill"><b>Lugar:</b> {{ ingreso.lugar.codigo }}</span>
+      {% else %}
+        <span class="pill"><b>Lugar:</b> -</span>
+      {% endif %}
+
+      {% if ingreso.retirado %}
+        <span class="pill"><b>Estado:</b> Retirado ✅</span>
+      {% else %}
+        <span class="pill"><b>Estado:</b> En playón 📦</span>
+      {% endif %}
+    </div>
+
+    <hr class="hr">
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      {% if ingreso.retirado %}
+        <a class="btn btn--ok" href="{% url 'imprimir_retiro' ingreso.id %}">
+          🖨️ Imprimir acta de retiro
+        </a>
+      {% else %}
+        <a class="btn btn--bad" href="{% url 'registrar_egreso' ingreso.id %}">
+          ✅ Registrar retiro ahora
+        </a>
+      {% endif %}
+
+      {% if ingreso.lugar %}
+        <a class="btn btn--ghost" href="{% url 'detalle_lugar' ingreso.lugar.id %}">
+          🧩 Ver lugar {{ ingreso.lugar.codigo }}
+        </a>
+      {% endif %}
+
+      <a class="btn btn--ghost" href="{% url 'detalle_vehiculo' ingreso.vehiculo.id %}">
+        🚗 Ver datos del vehículo
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2">Información completa</div>
+    <p class="muted" style="margin-top:6px;">
+      Datos del vehículo + ingreso + (si corresponde) egreso.
     </p>
-  {% endif %}
 
-  <hr>
-  <p>
-    <a href="{% url 'lista_ingresos' %}">Volver a la lista de ingresos</a> |
-    <a href="{% url 'home' %}">Volver al menú principal</a>
-  </p>
-</body>
-</html>
+    <hr class="hr">
+
+    {% include "vehiculos/_ingreso_detalle_bloque.html" with ingreso=ingreso %}
+  </div>
+
+  <div class="card">
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">⬅ Volver a ingresos</a>
+      <a class="btn btn--ghost" href="{% url 'home' %}">🏠 Volver al menú</a>
+    </div>
+  </div>
+{% endblock %}
