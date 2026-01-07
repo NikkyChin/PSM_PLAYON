@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Vehiculo, IngresoPlayon, MovimientoLugar, LugarPlayon
 from .forms import IngresoPlayonForm, EgresoPlayonForm
+from django.http import HttpResponseForbidden
 import string
 
 
@@ -66,12 +67,12 @@ def nuevo_ingreso_playon(request):
             ingreso.recibido_por = request.user
             ingreso.save()
 
-            # 👉 1️⃣ marcar lugar como ocupado
+            # marcar lugar como ocupado
             if ingreso.lugar:
                 ingreso.lugar.estado = "OCUPADO"
                 ingreso.lugar.save()
 
-                # 👉 2️⃣ registrar movimiento
+                # registrar movimiento
                 MovimientoLugar.objects.create(
                     ingreso=ingreso,
                     lugar_anterior=None,
@@ -121,7 +122,7 @@ def registrar_egreso(request, ingreso_id):
             egreso.entregado_por = request.user
             egreso.save()
 
-            # 👉 1️⃣ registrar movimiento de salida
+            # registrar movimiento de salida
             if egreso.lugar:
                 MovimientoLugar.objects.create(
                     ingreso=egreso,
@@ -131,11 +132,11 @@ def registrar_egreso(request, ingreso_id):
                     motivo="Egreso (retiro del playón)",
                 )
 
-                # 👉 2️⃣ liberar el lugar
+                # liberar el lugar
                 egreso.lugar.estado = "LIBRE"
                 egreso.lugar.save()
 
-            return redirect("lista_ingresos")
+            return redirect("imprimir_retiro", ingreso_id=egreso.id)
     else:
         form = EgresoPlayonForm(instance=ingreso)
 
@@ -212,10 +213,9 @@ def tablero_playon(request):
             ingreso = ocupacion.get(lugar.id) if lugar else None
             fila_celdas.append({"lugar": lugar, "ingreso": ingreso})
 
-        # ✅ ESTE APPEND TIENE QUE ESTAR ADENTRO DEL FOR DE FILAS
         tablero.append({"fila": f, "celdas": fila_celdas})
 
-    # ✅ contadores
+    # contadores
     total_lugares = len(lugares)
     lugares_libres = sum(1 for l in lugares if l.estado == "LIBRE")
     lugares_ocupados = sum(1 for l in lugares if l.estado == "OCUPADO")
@@ -336,3 +336,22 @@ def detalle_vehiculo(request, vehiculo_id):
         "vehiculos/detalle_vehiculo.html",
         {"vehiculo": vehiculo, "ingresos": ingresos},
     )
+
+
+
+@login_required
+def imprimir_retiro(request, ingreso_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "vehiculos/no_permiso.html")
+
+    ingreso = get_object_or_404(
+        IngresoPlayon.objects.select_related("vehiculo", "recibido_por", "entregado_por", "lugar"),
+        id=ingreso_id
+    )
+
+    # Solo se imprime si ya fue retirado
+    if not ingreso.retirado:
+        return HttpResponseForbidden("Este ingreso todavía no fue retirado.")
+
+    return render(request, "vehiculos/imprimir_retiro.html", {"ingreso": ingreso})

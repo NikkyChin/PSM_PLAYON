@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Acta de Retiro - {{ ingreso.vehiculo.dominio }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; color:#111; margin: 24px; }
+    .header { display:flex; gap:16px; align-items:center; border-bottom:2px solid #111; padding-bottom:12px; }
+    .logo { width: 90px; height:auto; }
+    .title { flex:1; }
+    .title h1 { margin:0; font-size:20px; }
+    .title p { margin:4px 0 0; font-size:13px; color:#444; }
+
+    .meta { margin-top: 14px; font-size: 12px; color:#444; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .box { margin-top: 14px; border:1px solid #bbb; border-radius:10px; padding:12px; }
+    .box h2 { margin:0 0 10px; font-size:14px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px 18px; font-size:13px; }
+    .row { display:flex; gap:8px; }
+    .k { min-width:160px; color:#333; }
+    .v { font-weight:600; }
+
+    .sign { margin-top: 22px; }
+    .sign-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 10px; }
+    .line { border-top:1px solid #111; padding-top:6px; font-size:12px; text-align:center; }
+
+    .actions { margin-top: 16px; display:flex; gap:10px; }
+    button { padding:10px 12px; border-radius:10px; border:1px solid #333; background:#f2f2f2; cursor:pointer; }
+    button:hover { background:#e8e8e8; }
+
+    /* Impresión */
+    @media print {
+      .actions { display:none; }
+      body { margin: 0; }
+      .box { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img class="logo" src="{% static 'img/logo_muni.png' %}" alt="Logo municipal">
+    <div class="title">
+      <h1>Playón de Secuestro Municipal — Acta de Retiro</h1>
+      <p>Documento interno para firma del retiro vehicular</p>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</div>
+    <div><b>N° Legajo Playón:</b> {{ ingreso.nro_legajo_playon }}</div>
+    <div><b>Fecha impresión:</b> {% now "d/m/Y H:i" %}</div>
+  </div>
+
+  <div class="box">
+    <h2>Datos del Vehículo</h2>
+    <div class="grid">
+      <div class="row"><div class="k">Dominio</div><div class="v">{{ ingreso.vehiculo.dominio }}</div></div>
+      <div class="row"><div class="k">Tipo</div><div class="v">{{ ingreso.get_tipo_vehiculo_display|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">Marca</div><div class="v">{{ ingreso.vehiculo.marca|default:"-" }}</div></div>
+      <div class="row"><div class="k">Modelo</div><div class="v">{{ ingreso.vehiculo.modelo|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">Color</div><div class="v">{{ ingreso.vehiculo.color|default:"-" }}</div></div>
+      <div class="row"><div class="k">Año</div><div class="v">{{ ingreso.vehiculo.anio|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">N° Chasis</div><div class="v">{{ ingreso.vehiculo.nro_chasis|default:"-" }}</div></div>
+      <div class="row"><div class="k">N° Motor</div><div class="v">{{ ingreso.vehiculo.nro_motor|default:"-" }}</div></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Datos de Ingreso al Playón</h2>
+    <div class="grid">
+      <div class="row"><div class="k">Fecha ingreso</div><div class="v">{{ ingreso.fecha_ingreso }}</div></div>
+      <div class="row"><div class="k">Lugar en playón</div><div class="v">{% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</div></div>
+
+      <div class="row"><div class="k">Recibido por</div><div class="v">{{ ingreso.recibido_por.username }}</div></div>
+      <div class="row"><div class="k">Lugar infracción</div><div class="v">{{ ingreso.lugar_infraccion|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">Acta infracción</div><div class="v">{{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</div></div>
+      <div class="row"><div class="k">Acta secuestro</div><div class="v">{{ ingreso.acta_secuestro_recibida|yesno:"Sí,No" }}</div></div>
+
+      <div class="row"><div class="k">Inventario visible</div><div class="v">{{ ingreso.inventario_objetos_visibles_recibido|yesno:"Sí,No" }}</div></div>
+      <div class="row"><div class="k">Registro fotográfico</div><div class="v">{{ ingreso.registro_fotografico_recibido|yesno:"Sí,No" }}</div></div>
+
+      <div class="row"><div class="k">Prueba alcoholemia</div><div class="v">{{ ingreso.get_prueba_alcoholemia_estado_display }}</div></div>
+      <div class="row"><div class="k">Observaciones</div><div class="v">{{ ingreso.observaciones_generales|default:"-" }}</div></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Datos de Egreso / Retiro</h2>
+    <div class="grid">
+      <div class="row"><div class="k">Retirado</div><div class="v">{{ ingreso.retirado|yesno:"Sí,No" }}</div></div>
+      <div class="row"><div class="k">Fecha retiro</div><div class="v">{{ ingreso.fecha_retiro|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">Entregado por</div><div class="v">{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</div></div>
+      <div class="row"><div class="k">Nombre retira</div><div class="v">{{ ingreso.nombre_retira|default:"-" }}</div></div>
+
+      <div class="row"><div class="k">DNI retira</div><div class="v">{{ ingreso.dni_retira|default:"-" }}</div></div>
+      <div class="row"><div class="k">Obs. egreso</div><div class="v">{{ ingreso.observaciones_egreso|default:"-" }}</div></div>
+    </div>
+  </div>
+
+  <div class="sign">
+    <h2 style="font-size:14px; margin: 0;">Firma del retiro</h2>
+    <div class="sign-grid">
+      <div class="line">Firma</div>
+      <div class="line">Aclaración</div>
+      <div class="line">DNI</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button onclick="window.print()">🖨️ Imprimir</button>
+    <button onclick="history.back()">⬅ Volver</button>
+  </div>
+
+</body>
+</html>
