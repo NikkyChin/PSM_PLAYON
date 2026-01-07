@@ -249,3 +249,12 @@ a{ color: inherit; }
 @media (max-width: 620px){
   .grid-actions{ grid-template-columns: 1fr; }
 }
+
+.table a{
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 800;
+}
+.table a:hover{
+  text-decoration: underline;
+}

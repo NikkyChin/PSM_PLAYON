@@ -1,22 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registrar ingreso al playón</title>
-</head>
-<body>
-    <h1>Registrar ingreso al playón</h1>
+{% extends "base.html" %}
 
+{% block title %}Registrar ingreso al playón{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Registrar ingreso al playón</div>
+    <p class="muted">Completá los datos del vehículo y del ingreso. Luego asigná el lugar.</p>
+  </div>
+
+  <div class="card">
     <form method="post">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
+      {% csrf_token %}
 
-    <button type="submit">Guardar ingreso</button>
+      {% if form.non_field_errors %}
+        <div class="card" style="border-color: rgba(255,77,109,.35);">
+          <b style="color: var(--bad);">Hay errores en el formulario:</b>
+          <div class="muted">{{ form.non_field_errors }}</div>
+        </div>
+      {% endif %}
+
+      <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        {# --- Campo helper --- #}
+        {% for field in form %}
+          <div>
+            <div style="font-weight:800; margin-bottom:6px;">
+              {{ field.label }}
+              {% if field.field.required %}
+                <span style="color: var(--warn);">*</span>
+              {% endif %}
+            </div>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <div class="muted" style="font-size:12px; margin-top:6px;">{{ field.help_text }}</div>
+            {% endif %}
+
+            {% if field.errors %}
+              <div style="margin-top:6px; color: var(--bad); font-weight:700; font-size:13px;">
+                {{ field.errors|striptags }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <hr class="hr">
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn--ok" type="submit">💾 Guardar ingreso</button>
+        <a class="btn btn--ghost" href="{% url 'tablero_playon' %}">🧩 Ver tablero</a>
+        <a class="btn btn--ghost" href="{% url 'lista_vehiculos' %}">🚗 Vehículos</a>
+        <a class="btn btn--ghost" href="{% url 'home' %}">⬅ Volver al menú</a>
+      </div>
     </form>
+  </div>
 
-    <p><a href="{% url 'lista_vehiculos' %}">Volver al listado de vehículos</a></p>
-    <p><a href="{% url 'home' %}">Volver al menú principal</a></p>
-</body>
-</html>
+  <style>
+    /* Estilo local para inputs/selects/textarea sin tocar tu app.css */
+    input, select, textarea{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(255,255,255,.20);
+      background: rgba(255,255,255,.06);
+    }
+    textarea{ min-height: 90px; resize: vertical; }
+
+    /* En pantallas chicas: 1 columna */
+    @media (max-width: 860px){
+      form > div[style*="grid-template-columns"]{
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+{% endblock %}

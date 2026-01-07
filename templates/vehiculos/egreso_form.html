@@ -1,25 +1,102 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registrar retiro del vehículo</title>
-</head>
-<body>
-    <h1>Registrar retiro del vehículo</h1>
+{% extends "base.html" %}
 
-    <p><strong>Legajo:</strong> {{ ingreso.nro_legajo_playon }}</p>
-    <p><strong>Dominio:</strong> {{ ingreso.vehiculo.dominio }}</p>
-    <p><strong>Fecha ingreso:</strong> {{ ingreso.fecha_ingreso }}</p>
+{% block title %}Registrar retiro del vehículo{% endblock %}
 
+{% block content %}
+  <div class="card">
+    <div class="h1">Registrar retiro del vehículo</div>
+    <p class="muted">
+      Confirmá los datos del egreso. Este paso deja constancia del retiro del vehículo.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="h2">Datos del ingreso</div>
+
+    <div class="pills">
+      <span class="pill"><b>Legajo:</b> {{ ingreso.nro_legajo_playon }}</span>
+      <span class="pill"><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</span>
+      <span class="pill"><b>Fecha ingreso:</b> {{ ingreso.fecha_ingreso }}</span>
+    </div>
+  </div>
+
+  <div class="card">
     <form method="post">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
+      {% csrf_token %}
 
-        <button type="submit">Confirmar retiro</button>
+      {% if form.non_field_errors %}
+        <div class="card" style="border-color: rgba(255,77,109,.35);">
+          <b style="color: var(--bad);">Hay errores en el formulario:</b>
+          <div class="muted">{{ form.non_field_errors }}</div>
+        </div>
+      {% endif %}
+
+      <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+        {% for field in form %}
+          <div>
+            <div style="font-weight:800; margin-bottom:6px;">
+              {{ field.label }}
+              {% if field.field.required %}
+                <span style="color: var(--warn);">*</span>
+              {% endif %}
+            </div>
+
+            {{ field }}
+
+            {% if field.help_text %}
+              <div class="muted" style="font-size:12px; margin-top:6px;">
+                {{ field.help_text }}
+              </div>
+            {% endif %}
+
+            {% if field.errors %}
+              <div style="margin-top:6px; color: var(--bad); font-weight:700; font-size:13px;">
+                {{ field.errors|striptags }}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <hr class="hr">
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn--bad" type="submit">
+          ✅ Confirmar retiro
+        </button>
+
+        <a class="btn btn--ghost" href="{% url 'detalle_ingreso' ingreso.id %}">
+          📄 Ver ingreso completo
+        </a>
+
+        <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">
+          ⬅ Volver a ingresos
+        </a>
+      </div>
     </form>
+  </div>
 
-    <p><a href="{% url 'lista_ingresos' %}">Volver a la lista de ingresos</a></p>
-</body>
-</html>
+  <style>
+    /* Inputs consistentes con el ingreso */
+    input, select, textarea{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(255,255,255,.20);
+      background: rgba(255,255,255,.06);
+    }
+    textarea{ min-height: 90px; resize: vertical; }
+
+    @media (max-width: 860px){
+      form > div[style*="grid-template-columns"]{
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+{% endblock %}
