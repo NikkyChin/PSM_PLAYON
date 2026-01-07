@@ -12,12 +12,19 @@
   <header class="topbar">
     <div class="container topbar__inner">
       <div class="brand">
-        <div class="brand__logo">🚗</div>
+        <div class="brand__logo">
+          <img src="{% static 'img/logo_muni.png' %}"
+              alt="Municipalidad"
+              style="width:100%; height:100%; object-fit:contain;">
+        </div>
+
         <div class="brand__text">
           <div class="brand__title">PSM Playón</div>
           <div class="brand__sub">Depósito municipal</div>
         </div>
       </div>
+
+
 
       <nav class="topnav">
         <a class="topnav__link" href="{% url 'home' %}">Inicio</a>

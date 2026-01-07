@@ -1,34 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Vehículos registrados</title>
-</head>
-<body>
-    <h1>Vehículos en el sistema</h1>
+{% extends "base.html" %}
 
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>Dominio</th>
-            <th>Marca</th>
-            <th>Modelo</th>
-            <th>Color</th>
-            <th>Año</th>
-            <th>Fecha alta</th>
-        </tr>
+{% block title %}Vehículos registrados{% endblock %}
 
-        {% for v in vehiculos %}
-        <tr>
-            <td>{{ v.dominio }}</td>
-            <td>{{ v.marca }}</td>
-            <td>{{ v.modelo }}</td>
-            <td>{{ v.color }}</td>
-            <td>{{ v.anio }}</td>
-            <td>{{ v.fecha_alta }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+{% block content %}
+  <div class="card">
+    <div class="h1">Vehículos registrados</div>
+    <p class="muted">
+      Listado de vehículos dados de alta en el sistema.
+    </p>
 
-    <p><a href="{% url 'home' %}">Volver al menú</a></p>
-</body>
-</html>
+    <div class="pills">
+      <span class="pill"><b>Total:</b> {{ vehiculos|length }}</span>
+
+      <span style="flex:1"></span>
+
+      <a class="btn btn--ghost" href="{% url 'nuevo_ingreso_playon' %}">
+        ➕ Registrar ingreso
+      </a>
+      <a class="btn btn--ghost" href="{% url 'home' %}">
+        ⬅ Volver al menú
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if vehiculos %}
+      <div style="overflow:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Dominio</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Color</th>
+              <th>Año</th>
+              <th>Fecha alta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in vehiculos %}
+              <tr>
+                <td style="color: var(--text); font-weight: 800;">
+                  {{ v.dominio }}
+                </td>
+                <td>{{ v.marca|default:"-" }}</td>
+                <td>{{ v.modelo|default:"-" }}</td>
+                <td>{{ v.color|default:"-" }}</td>
+                <td>{{ v.anio|default:"-" }}</td>
+                <td>{{ v.fecha_alta }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">No hay vehículos registrados.</p>
+    {% endif %}
+  </div>
+{% endblock %}

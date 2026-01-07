@@ -1,13 +1,41 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Sin permiso</title>
-</head>
-<body>
-    <h1>No tenés permisos para acceder a esta sección</h1>
-    <p>Consultá con un administrador del sistema.</p>
+{% extends "base.html" %}
 
-    <p><a href="{% url 'home' %}">Volver al inicio</a></p>
-</body>
-</html>
+{% block title %}Acceso restringido{% endblock %}
+
+{% block content %}
+  <div class="card" style="border-color: rgba(255,77,109,.35);">
+    <div class="h1">Acceso restringido</div>
+
+    <p class="muted" style="margin-top:6px;">
+      No tenés permisos para acceder a esta sección del sistema.
+    </p>
+
+    <div class="pills" style="margin-top:14px;">
+      <span class="pill">
+        <b>Usuario:</b> {{ request.user.username }}
+      </span>
+      <span class="pill">
+        <b>Estado:</b> Sin autorización
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="muted">
+      Si creés que deberías tener acceso, comunicate con un administrador del sistema
+      para que revise tu rol o permisos asignados.
+    </p>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+      <a class="btn btn--ghost" href="{% url 'home' %}">
+        ⬅ Volver al inicio
+      </a>
+
+      {% if request.user.is_staff %}
+        <a class="btn btn--ghost" href="/admin/">
+          🛠️ Ir al administrador
+        </a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -7,7 +7,7 @@
     <div class="h1">{{ titulo|default:"Ingresos al Playón" }}</div>
     <p class="muted">Listado de ingresos registrados. Podés filtrar por activos o retirados.</p>
 
-    <div class="pills">
+    <div class="pills" style="align-items:center;">
       <a class="btn btn--ghost" href="{% url 'ingresos_en_playon' %}">📦 En el playón</a>
       <a class="btn btn--ghost" href="{% url 'retiros_playon' %}">✅ Retirados</a>
       <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">📋 Todos</a>
@@ -27,46 +27,68 @@
             <tr>
               <th>Legajo</th>
               <th>Dominio</th>
-              <th>Fecha ingreso</th>
+              <th>Lugar</th>
+              <th>Ingreso</th>
               <th>Estado</th>
-              <th>Fecha retiro</th>
-              <th>Acciones</th>
+              <th>Retiro</th>
+              <th style="width: 320px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {% for i in ingresos %}
               <tr>
-                <td style="color: var(--text); font-weight: 800;">{{ i.nro_legajo_playon }}</td>
-                <td style="color: var(--text); font-weight: 800;">{{ i.vehiculo.dominio }}</td>
+                <td style="color: var(--text); font-weight: 900;">{{ i.nro_legajo_playon }}</td>
+                <td style="color: var(--text); font-weight: 900;">{{ i.vehiculo.dominio }}</td>
+
+                <td>
+                  {% if i.lugar %}
+                    <span class="pill" style="display:inline-block;">{{ i.lugar.codigo }}</span>
+                  {% else %}
+                    <span class="muted">-</span>
+                  {% endif %}
+                </td>
+
                 <td>{{ i.fecha_ingreso }}</td>
 
                 <td>
                   {% if i.retirado %}
-                    <span style="color: var(--ok); font-weight:800;">Retirado</span>
+                    <span class="pill" style="display:inline-block; border-color: rgba(31,191,117,.35);">
+                      <b style="color:var(--ok)">Retirado</b>
+                    </span>
                   {% else %}
-                    <span style="color: var(--warn); font-weight:800;">En playón</span>
+                    <span class="pill" style="display:inline-block; border-color: rgba(246,201,69,.35);">
+                      <b style="color:var(--warn)">En playón</b>
+                    </span>
                   {% endif %}
                 </td>
 
                 <td>
-                  {% if i.fecha_retiro %}{{ i.fecha_retiro }}{% else %}-{% endif %}
+                  {% if i.fecha_retiro %}
+                    {{ i.fecha_retiro }}
+                  {% else %}
+                    <span class="muted">-</span>
+                  {% endif %}
                 </td>
 
                 <td>
-                  <a href="{% url 'detalle_ingreso' i.id %}">📄 Ver detalle</a>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn--ghost" href="{% url 'detalle_ingreso' i.id %}">📄 Detalle</a>
 
-                  {% if not i.retirado %}
-                    <span class="muted"> | </span>
-                    <a href="{% url 'registrar_egreso' i.id %}">🚗 Registrar retiro</a>
-                  {% else %}
-                    <span class="muted"> | </span>
-                    <a href="{% url 'imprimir_retiro' i.id %}">🖨️ Imprimir acta</a>
-                  {% endif %}
+                    {% if not i.retirado %}
+                      <a class="btn btn--bad" href="{% url 'registrar_egreso' i.id %}">🚗 Retiro</a>
+                    {% else %}
+                      <a class="btn btn--ok" href="{% url 'imprimir_retiro' i.id %}">🖨️ Acta</a>
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      <div class="muted" style="margin-top:10px; font-size:12px;">
+        Tip: podés hacer click en <b style="color:var(--text)">Detalle</b> para ver toda la info del ingreso.
       </div>
     {% else %}
       <p class="muted">No hay ingresos para mostrar.</p>
