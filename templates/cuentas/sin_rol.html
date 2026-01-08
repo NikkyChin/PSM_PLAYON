@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Sin rol asignado{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Acceso restringido</div>
+    <p class="muted">
+      Tu usuario no tiene un rol asignado todavía.
+    </p>
+
+    <p class="muted">
+      Contactá a un administrador del sistema para continuar.
+    </p>
+
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button class="btn btn--ghost">Cerrar sesión</button>
+    </form>
+  </div>
+{% endblock %}
