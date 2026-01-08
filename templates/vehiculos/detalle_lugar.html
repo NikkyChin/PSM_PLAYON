@@ -1,41 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Detalle {{ lugar.codigo }}</title>
-  <style>
-    body { font-family: Arial, sans-serif; }
-    .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0; }
-    .muted { opacity: 0.75; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align:left; }
-    button { margin: 6px 0; }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-  <h1>Detalle del lugar {{ lugar.codigo }}</h1>
-  <p class="muted">
-    Estado: <b>{{ lugar.get_estado_display }}</b> |
-    Tipo: <b>{{ lugar.get_tipo_display }}</b>
-  </p>
+{% block title %}Detalle {{ lugar.codigo }}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Detalle del lugar {{ lugar.codigo }}</div>
+    <p class="muted">Información del lugar, ingreso activo, movimientos e historial.</p>
+
+    <div class="pills">
+      <span class="pill"><b>Código:</b> {{ lugar.codigo }}</span>
+      <span class="pill"><b>Estado:</b> {{ lugar.get_estado_display }}</span>
+      <span class="pill"><b>Tipo:</b> {{ lugar.get_tipo_display }}</span>
+
+      {% if ingreso_activo %}
+        <span class="pill"><b>Ocupado por:</b> {{ ingreso_activo.vehiculo.dominio }}</span>
+        <span class="pill"><b>Legajo:</b> {{ ingreso_activo.nro_legajo_playon }}</span>
+      {% else %}
+        <span class="pill"><b>Ocupación:</b> Libre</span>
+      {% endif %}
+    </div>
+  </div>
 
   <div class="card">
-    <h2>Acciones del lugar</h2>
+    <div class="h2">Acciones del lugar</div>
+    <p class="muted" style="margin-top:6px;">Acciones rápidas según estado del lugar.</p>
 
-    {% if lugar.estado != "FUERA" %}
-      <form method="post" action="{% url 'marcar_lugar_fuera' lugar.id %}">
-        {% csrf_token %}
-        <button type="submit">⛔ Marcar FUERA de servicio</button>
-      </form>
-    {% else %}
-      <form method="post" action="{% url 'reactivar_lugar' lugar.id %}">
-        {% csrf_token %}
-        <button type="submit">✅ Reactivar (volver a LIBRE)</button>
-      </form>
-    {% endif %}
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+      {% if lugar.estado != "FUERA" %}
+        <form method="post" action="{% url 'marcar_lugar_fuera' lugar.id %}">
+          {% csrf_token %}
+          <button class="btn btn--bad" type="submit">⛔ Marcar FUERA de servicio</button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'reactivar_lugar' lugar.id %}">
+          {% csrf_token %}
+          <button class="btn btn--ok" type="submit">✅ Reactivar (volver a LIBRE)</button>
+        </form>
+      {% endif %}
 
-    <hr>
+      <a class="btn btn--ghost" href="{% url 'tablero_playon' %}">⬅ Volver al tablero</a>
+    </div>
+
+    <hr class="hr">
 
     {% if ingreso_activo %}
       {% if lugar.estado == "FUERA" %}
@@ -43,95 +49,97 @@
           Este lugar está <b>FUERA de servicio</b>. No se permiten acciones sobre el ingreso desde aquí.
         </p>
       {% else %}
-        {% if not ingreso_activo.retirado %}
-          <form method="get" action="{% url 'registrar_egreso' ingreso_activo.id %}">
-            <button type="submit">🚗 Marcar retiro del vehículo</button>
-          </form>
-        {% endif %}
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn" href="{% url 'detalle_ingreso' ingreso_activo.id %}">📄 Ver ingreso completo</a>
+          <a class="btn" href="{% url 'detalle_vehiculo' ingreso_activo.vehiculo.id %}">🔍 Ver datos del vehículo</a>
 
-        <form method="get" action="{% url 'detalle_ingreso' ingreso_activo.id %}">
-          <button type="submit">📄 Ver ingreso completo</button>
-        </form>
-
-        <form method="get" action="{% url 'detalle_vehiculo' ingreso_activo.vehiculo.id %}">
-          <button type="submit">🔍 Ver datos del vehículo</button>
-        </form>
+          {% if ingreso_activo.retirado %}
+            <a class="btn btn--ok" href="{% url 'imprimir_retiro' ingreso_activo.id %}">🖨️ Imprimir acta de retiro</a>
+          {% endif %}
+        </div>
       {% endif %}
     {% else %}
-      <p>No hay acciones disponibles para este lugar.</p>
+      <p class="muted" style="margin-top:10px;">No hay acciones disponibles para este lugar.</p>
     {% endif %}
   </div>
 
   <div class="card">
+    <div class="h2">Ingreso activo (detalle)</div>
+
     {% if ingreso_activo %}
-      <h2>Ingreso activo (detalle)</h2>
       {% include "vehiculos/_ingreso_detalle_bloque.html" with ingreso=ingreso_activo %}
     {% else %}
-      <p>No hay ingreso activo en este lugar.</p>
+      <p class="muted">No hay ingreso activo en este lugar.</p>
     {% endif %}
   </div>
 
   <div class="card">
-    <h2>Movimientos (del ingreso activo)</h2>
+    <div class="h2">Movimientos (del ingreso activo)</div>
+
     {% if movimientos %}
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>De</th>
-            <th>A</th>
-            <th>Usuario</th>
-            <th>Motivo</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for m in movimientos %}
+      <div style="overflow:auto; margin-top:10px;">
+        <table class="table">
+          <thead>
             <tr>
-              <td>{{ m.fecha }}</td>
-              <td>{{ m.lugar_anterior|default:"-" }}</td>
-              <td>{{ m.lugar_nuevo }}</td>
-              <td>{{ m.movido_por }}</td>
-              <td>{{ m.motivo|default:"-" }}</td>
+              <th>Fecha</th>
+              <th>De</th>
+              <th>A</th>
+              <th>Usuario</th>
+              <th>Motivo</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for m in movimientos %}
+              <tr>
+                <td>{{ m.fecha }}</td>
+                <td>{{ m.lugar_anterior|default:"-" }}</td>
+                <td>{{ m.lugar_nuevo }}</td>
+                <td>{{ m.movido_por }}</td>
+                <td>{{ m.motivo|default:"-" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <p class="muted">Sin movimientos para mostrar.</p>
+      <p class="muted" style="margin-top:10px;">Sin movimientos para mostrar.</p>
     {% endif %}
   </div>
 
   <div class="card">
-    <h2>Historial de ingresos en este lugar (últimos 20)</h2>
+    <div class="h2">Historial de ingresos en este lugar (últimos 20)</div>
+
     {% if historial_ingresos %}
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha ingreso</th>
-            <th>Dominio</th>
-            <th>Legajo</th>
-            <th>Retirado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for i in historial_ingresos %}
+      <div style="overflow:auto; margin-top:10px;">
+        <table class="table">
+          <thead>
             <tr>
-              <td>{{ i.fecha_ingreso }}</td>
-              <td>{{ i.vehiculo.dominio }}</td>
-              <td>{{ i.nro_legajo_playon }}</td>
-              <td>{% if i.retirado %}Sí{% else %}No{% endif %}</td>
+              <th>Fecha ingreso</th>
+              <th>Dominio</th>
+              <th>Legajo</th>
+              <th>Estado</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for i in historial_ingresos %}
+              <tr>
+                <td>{{ i.fecha_ingreso }}</td>
+                <td style="color: var(--text); font-weight:800;">{{ i.vehiculo.dominio }}</td>
+                <td style="color: var(--text); font-weight:800;">{{ i.nro_legajo_playon }}</td>
+                <td>
+                  {% if i.retirado %}
+                    <span style="color: var(--ok); font-weight:800;">Retirado</span>
+                  {% else %}
+                    <span style="color: var(--warn); font-weight:800;">En playón</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
-      <p class="muted">Todavía no hay ingresos registrados en este lugar.</p>
+      <p class="muted" style="margin-top:10px;">Todavía no hay ingresos registrados en este lugar.</p>
     {% endif %}
   </div>
-
-  <p>
-    <a href="{% url 'tablero_playon' %}">⬅ Volver al tablero</a>
-  </p>
-
-</body>
-</html>
+{% endblock %}

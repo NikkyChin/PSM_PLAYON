@@ -15,6 +15,12 @@
       {% if es_inspector %}<span class="pill"><b>Rol:</b> Inspector</span>{% endif %}
       {% if es_juez %}<span class="pill"><b>Rol:</b> Juez</span>{% endif %}
     </div>
+
+    <hr class="hr">
+
+    <div class="muted">
+      <b style="color:var(--text)">Objetivo del MVP:</b> control interno de ingresos/egresos y ocupación del playón.
+    </div>
   </div>
 
   {% if not es_inspector and not es_encargado_playon and not es_juez and not es_admin_sistema %}
@@ -35,25 +41,25 @@
         <a class="action" href="{% url 'tablero_playon' %}">
           <div class="action__icon">🧩</div>
           <div class="action__title">Tablero del playón</div>
-          <div class="action__desc">Ver ocupación por lugares (A-Z / 1-15).</div>
+          <div class="action__desc">Ver ocupación por lugares (A–Z / 1–15).</div>
         </a>
 
         <a class="action" href="{% url 'nuevo_ingreso_playon' %}">
           <div class="action__icon">➕</div>
           <div class="action__title">Registrar ingreso</div>
-          <div class="action__desc">Ingresar vehículo y asignar lugar.</div>
+          <div class="action__desc">Alta de ingreso y asignación de lugar.</div>
         </a>
 
         <a class="action" href="{% url 'ingresos_en_playon' %}">
           <div class="action__icon">📦</div>
           <div class="action__title">Vehículos en playón</div>
-          <div class="action__desc">Listado de ingresos activos (no retirados).</div>
+          <div class="action__desc">Ingresos activos (no retirados).</div>
         </a>
 
         <a class="action" href="{% url 'retiros_playon' %}">
           <div class="action__icon">✅</div>
           <div class="action__title">Historial de retiros</div>
-          <div class="action__desc">Ver egresos con fecha y responsable.</div>
+          <div class="action__desc">Egresos con fecha y responsable.</div>
         </a>
 
         <a class="action" href="{% url 'lista_vehiculos' %}">
@@ -114,11 +120,4 @@
       </div>
     </div>
   {% endif %}
-
-  <div style="margin-top: 10px;">
-    <form method="post" action="{% url 'logout' %}">
-      {% csrf_token %}
-      <button class="btn btn--ghost" type="submit">Cerrar sesión</button>
-    </form>
-  </div>
 {% endblock %}

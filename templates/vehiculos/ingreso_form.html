@@ -13,20 +13,19 @@
       {% csrf_token %}
 
       {% if form.non_field_errors %}
-        <div class="card" style="border-color: rgba(255,77,109,.35);">
+        <div class="card form-errors">
           <b style="color: var(--bad);">Hay errores en el formulario:</b>
           <div class="muted">{{ form.non_field_errors }}</div>
         </div>
       {% endif %}
 
-      <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
-        {# --- Campo helper --- #}
+      <div class="field-grid">
         {% for field in form %}
           <div>
-            <div style="font-weight:800; margin-bottom:6px;">
+            <div class="field-label">
               {{ field.label }}
               {% if field.field.required %}
-                <span style="color: var(--warn);">*</span>
+                <span class="field-req">*</span>
               {% endif %}
             </div>
 
@@ -37,9 +36,7 @@
             {% endif %}
 
             {% if field.errors %}
-              <div style="margin-top:6px; color: var(--bad); font-weight:700; font-size:13px;">
-                {{ field.errors|striptags }}
-              </div>
+              <div class="field-error">{{ field.errors|striptags }}</div>
             {% endif %}
           </div>
         {% endfor %}
@@ -55,29 +52,4 @@
       </div>
     </form>
   </div>
-
-  <style>
-    /* Estilo local para inputs/selects/textarea sin tocar tu app.css */
-    input, select, textarea{
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--text);
-      outline: none;
-    }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(255,255,255,.20);
-      background: rgba(255,255,255,.06);
-    }
-    textarea{ min-height: 90px; resize: vertical; }
-
-    /* En pantallas chicas: 1 columna */
-    @media (max-width: 860px){
-      form > div[style*="grid-template-columns"]{
-        grid-template-columns: 1fr !important;
-      }
-    }
-  </style>
 {% endblock %}

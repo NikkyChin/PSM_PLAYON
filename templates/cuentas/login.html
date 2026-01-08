@@ -1,27 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Ingreso - PSM Playón</title>
-</head>
-<body>
-    <h1>Ingreso al sistema del Playón Municipal</h1>
+{% extends "base.html" %}
 
-    {% if form.errors %}
-        <p style="color: red;">Usuario o contraseña incorrectos.</p>
-    {% endif %}
+{% block title %}Ingreso – PSM Playón{% endblock %}
 
-    <form method="post">
+{% block content %}
+  <div style="display:flex; justify-content:center; margin-top:40px;">
+    <div class="card" style="width:100%; max-width:420px;">
+
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:42px;">🚗</div>
+        <div class="h1" style="margin:10px 0 4px;">PSM Playón</div>
+        <div class="muted">Depósito Municipal</div>
+      </div>
+
+      {% if form.errors %}
+        <div class="card" style="border-color: rgba(255,77,109,.35); margin-bottom:12px;">
+          <b style="color: var(--bad);">Credenciales incorrectas</b>
+          <div class="muted" style="margin-top:4px;">
+            Usuario o contraseña inválidos.
+          </div>
+        </div>
+      {% endif %}
+
+      <form method="post">
         {% csrf_token %}
-        <div>
-            <label for="id_username">Usuario:</label>
-            {{ form.username }}
+
+        <div style="margin-bottom:12px;">
+          <div style="font-weight:800; margin-bottom:6px;">Usuario</div>
+          {{ form.username }}
         </div>
-        <div>
-            <label for="id_password">Contraseña:</label>
-            {{ form.password }}
+
+        <div style="margin-bottom:16px;">
+          <div style="font-weight:800; margin-bottom:6px;">Contraseña</div>
+          {{ form.password }}
         </div>
-        <button type="submit">Entrar</button>
-    </form>
-</body>
-</html>
+
+        <button class="btn btn--ok" type="submit" style="width:100%;">
+          🔐 Ingresar al sistema
+        </button>
+      </form>
+
+      <div class="muted" style="text-align:center; margin-top:14px; font-size:12px;">
+        Acceso exclusivo para personal autorizado
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Inputs con el mismo look del resto del sistema */
+    input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      outline:none;
+    }
+    input:focus{
+      border-color: rgba(255,255,255,.20);
+      background: rgba(255,255,255,.06);
+    }
+  </style>
+{% endblock %}

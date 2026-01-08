@@ -1,63 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Vehículo {{ vehiculo.dominio }}</title>
-  <style>
-    body { font-family: Arial, sans-serif; }
-    .card { border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0; }
-    .muted { opacity: 0.75; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align:left; }
-  </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-  <h1>Vehículo: {{ vehiculo.dominio }}</h1>
+{% block title %}Vehículo {{ vehiculo.dominio }}{% endblock %}
 
+{% block content %}
   <div class="card">
-    <h2>Datos del vehículo</h2>
-    <p><b>Marca:</b> {{ vehiculo.marca|default:"-" }}</p>
-    <p><b>Modelo:</b> {{ vehiculo.modelo|default:"-" }}</p>
-    <p><b>Color:</b> {{ vehiculo.color|default:"-" }}</p>
-    <p><b>Año:</b> {{ vehiculo.anio|default:"-" }}</p>
-    <p><b>N° chasis:</b> {{ vehiculo.nro_chasis|default:"-" }}</p>
-    <p><b>N° motor:</b> {{ vehiculo.nro_motor|default:"-" }}</p>
-    <p class="muted"><b>Alta en sistema:</b> {{ vehiculo.fecha_alta }}</p>
+    <div class="h1">Vehículo {{ vehiculo.dominio }}</div>
+    <p class="muted">Detalle completo del vehículo y su historial en el playón.</p>
+
+    <div class="pills">
+      <span class="pill"><b>Dominio:</b> {{ vehiculo.dominio }}</span>
+      {% if vehiculo.marca %}
+        <span class="pill"><b>Marca:</b> {{ vehiculo.marca }}</span>
+      {% endif %}
+      {% if vehiculo.modelo %}
+        <span class="pill"><b>Modelo:</b> {{ vehiculo.modelo }}</span>
+      {% endif %}
+    </div>
   </div>
 
   <div class="card">
-    <h2>Historial de ingresos (últimos 20)</h2>
+    <div class="h2">Datos del vehículo</div>
+
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Marca</th>
+          <td>{{ vehiculo.marca|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>Modelo</th>
+          <td>{{ vehiculo.modelo|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>Color</th>
+          <td>{{ vehiculo.color|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>Año</th>
+          <td>{{ vehiculo.anio|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>N° Chasis</th>
+          <td>{{ vehiculo.nro_chasis|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>N° Motor</th>
+          <td>{{ vehiculo.nro_motor|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th>Alta en sistema</th>
+          <td>{{ vehiculo.fecha_alta }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="h2">Historial de ingresos (últimos 20)</div>
 
     {% if ingresos %}
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha ingreso</th>
-            <th>Legajo</th>
-            <th>Lugar</th>
-            <th>Retirado</th>
-            <th>Fecha retiro</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for i in ingresos %}
+      <div style="overflow:auto;">
+        <table class="table">
+          <thead>
             <tr>
-              <td>{{ i.fecha_ingreso }}</td>
-              <td>{{ i.nro_legajo_playon }}</td>
-              <td>{{ i.lugar|default:"-" }}</td>
-              <td>{% if i.retirado %}Sí{% else %}No{% endif %}</td>
-              <td>{{ i.fecha_retiro|default:"-" }}</td>
+              <th>Fecha ingreso</th>
+              <th>Legajo</th>
+              <th>Lugar</th>
+              <th>Estado</th>
+              <th>Fecha retiro</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for i in ingresos %}
+              <tr>
+                <td>{{ i.fecha_ingreso }}</td>
+                <td style="color:var(--text); font-weight:800;">
+                  {{ i.nro_legajo_playon }}
+                </td>
+                <td>{{ i.lugar|default:"-" }}</td>
+                <td>
+                  {% if i.retirado %}
+                    <span style="color: var(--ok); font-weight:800;">Retirado</span>
+                  {% else %}
+                    <span style="color: var(--warn); font-weight:800;">En playón</span>
+                  {% endif %}
+                </td>
+                <td>{{ i.fecha_retiro|default:"-" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
       <p class="muted">Todavía no hay ingresos registrados para este vehículo.</p>
     {% endif %}
   </div>
 
-  <p><a href="{% url 'tablero_playon' %}">⬅ Volver al tablero</a></p>
-
-</body>
-</html>
+  <div class="card">
+    <a class="btn btn--ghost" href="{% url 'tablero_playon' %}">
+      ⬅ Volver al tablero
+    </a>
+    <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">
+      📋 Ver ingresos
+    </a>
+  </div>
+{% endblock %}
