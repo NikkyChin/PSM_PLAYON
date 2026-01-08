@@ -48,9 +48,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'cuentas.middleware.UsuarioConRolMiddleware'
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+
+    'cuentas.middleware.UsuarioConRolMiddleware'
 ]
 
 ROOT_URLCONF = 'PSM_PLAYON.urls'
