@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Ingreso – PSM Playón{% endblock %}
 
@@ -7,7 +8,9 @@
     <div class="card" style="width:100%; max-width:420px;">
 
       <div style="text-align:center; margin-bottom:16px;">
-        <div style="font-size:42px;">🚗</div>
+        <div style="font-size:42px;">
+          <img src="{% static 'img/logo_muni.png' %}" width="256" alt="Logo Municipio">
+        </div>
         <div class="h1" style="margin:10px 0 4px;">PSM Playón</div>
         <div class="muted">Depósito Municipal</div>
       </div>
@@ -46,7 +49,6 @@
   </div>
 
   <style>
-    /* Inputs con el mismo look del resto del sistema */
     input{
       width:100%;
       padding:10px 12px;
