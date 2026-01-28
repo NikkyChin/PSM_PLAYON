@@ -103,4 +103,33 @@
   {% else %}
     <div class="muted">Este vehículo aún no fue retirado del playón.</div>
   {% endif %}
+
+  {% if auditorias %}
+    <div class="card">
+      <div class="h2">Auditoría (últimos cambios)</div>
+      <table class="table" style="margin-top:10px;">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Acción</th>
+            <th>Cambios</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in auditorias %}
+            <tr>
+              <td>{{ a.fecha }}</td>
+              <td>{{ a.usuario.username }}</td>
+              <td>{{ a.accion }}</td>
+              <td style="color: var(--text);">
+                <pre style="white-space:pre-wrap; margin:0;">{{ a.cambios }}</pre>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
 </div>

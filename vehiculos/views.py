@@ -200,8 +200,9 @@ def detalle_ingreso(request, ingreso_id):
         return render(request, "vehiculos/no_permiso.html")
 
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
-
-    return render(request, "vehiculos/detalle_ingreso.html", {"ingreso": ingreso})
+    auditorias = ingreso.auditorias.select_related("usuario").all()[:20]
+    
+    return render(request, "vehiculos/detalle_ingreso.html", {"ingreso": ingreso, "auditorias": auditorias})
 
 @login_required
 def tablero_playon(request):
@@ -343,6 +344,7 @@ def detalle_vehiculo(request, vehiculo_id):
         return render(request, "vehiculos/no_permiso.html")
 
     vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
+
 
     # historial de ingresos de ese vehículo (últimos 20)
     ingresos = (

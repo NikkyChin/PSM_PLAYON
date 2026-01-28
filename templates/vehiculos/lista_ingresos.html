@@ -76,6 +76,7 @@
 
                     {% if not i.retirado %}
                       <a class="btn btn--bad" href="{% url 'registrar_egreso' i.id %}">🚗 Retiro</a>
+                      <a class="btn btn--bad" href="{% url 'editar_ingreso' i.id %}">✏️ Editar</a>
                     {% else %}
                       <a class="btn btn--ok" href="{% url 'imprimir_retiro' i.id %}">🖨️ Acta</a>
                     {% endif %}
