@@ -5,6 +5,7 @@ from django.utils import timezone
 from .models import Vehiculo, IngresoPlayon, MovimientoLugar, LugarPlayon, AuditoriaIngreso 
 from .forms import IngresoPlayonForm, EgresoPlayonForm, EditarIngresoPlayonForm, EditarVehiculoForm
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseForbidden
 import string
 
@@ -36,8 +37,17 @@ def lista_vehiculos(request):
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "vehiculos/no_permiso.html")
 
+    q = (request.GET.get("q") or "").strip()
+
     vehiculos = Vehiculo.objects.all().order_by("-fecha_alta")
-    return render(request, "vehiculos/lista.html", {"vehiculos": vehiculos})
+    if q:
+        vehiculos = vehiculos.filter(
+            Q(dominio__icontains=q) |
+            Q(marca__icontains=q) |
+            Q(modelo__icontains=q)
+        )
+
+    return render(request, "vehiculos/lista.html", {"vehiculos": vehiculos, "q": q})
 
 
 @login_required
@@ -117,8 +127,25 @@ def lista_ingresos(request):
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "vehiculos/no_permiso.html")
 
-    ingresos = IngresoPlayon.objects.select_related("vehiculo", "recibido_por", "entregado_por").order_by("-fecha_ingreso")
-    return render(request, "vehiculos/lista_ingresos.html", {"ingresos": ingresos})
+    q = (request.GET.get("q") or "").strip()
+
+    ingresos = (
+        IngresoPlayon.objects
+        .select_related("vehiculo", "recibido_por", "entregado_por")
+        .order_by("-fecha_ingreso")
+    )
+
+    if q:
+        ingresos = ingresos.filter(
+            Q(nro_legajo_playon__icontains=q) |
+            Q(vehiculo__dominio__icontains=q)
+        )
+
+    return render(request, "vehiculos/lista_ingresos.html", {
+        "ingresos": ingresos,
+        "titulo": "Ingresos al Playón",
+        "q": q,
+    })
 
 @login_required
 def registrar_egreso(request, ingreso_id):
@@ -169,11 +196,24 @@ def ingresos_en_playon(request):
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "vehiculos/no_permiso.html")
 
-    ingresos = IngresoPlayon.objects.select_related("vehiculo").filter(retirado=False).order_by("-fecha_ingreso")
+    q = (request.GET.get("q") or "").strip()
+
+    ingresos = (
+        IngresoPlayon.objects
+        .select_related("vehiculo", "recibido_por", "entregado_por")
+        .order_by("-fecha_ingreso")
+    )
+
+    if q:
+        ingresos = ingresos.filter(
+            Q(nro_legajo_playon__icontains=q) |
+            Q(vehiculo__dominio__icontains=q)
+        )
+
     return render(request, "vehiculos/lista_ingresos.html", {
         "ingresos": ingresos,
-        "titulo": "Vehículos actualmente en el playón",
-        "solo_en_playon": True,
+        "titulo": "Ingresos al Playón",
+        "q": q,
     })
 
 
@@ -184,11 +224,24 @@ def retiros_playon(request):
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "vehiculos/no_permiso.html")
 
-    ingresos = IngresoPlayon.objects.select_related("vehiculo", "entregado_por").filter(retirado=True).order_by("-fecha_retiro")
+    q = (request.GET.get("q") or "").strip()
+
+    ingresos = (
+        IngresoPlayon.objects
+        .select_related("vehiculo", "recibido_por", "entregado_por")
+        .order_by("-fecha_ingreso")
+    )
+
+    if q:
+        ingresos = ingresos.filter(
+            Q(nro_legajo_playon__icontains=q) |
+            Q(vehiculo__dominio__icontains=q)
+        )
+
     return render(request, "vehiculos/lista_ingresos.html", {
         "ingresos": ingresos,
-        "titulo": "Historial de retiros del playón",
-        "solo_en_playon": False,
+        "titulo": "Ingresos al Playón",
+        "q": q,
     })
 
 
@@ -201,7 +254,7 @@ def detalle_ingreso(request, ingreso_id):
 
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
     auditorias = ingreso.auditorias.select_related("usuario").all()[:20]
-    
+
     return render(request, "vehiculos/detalle_ingreso.html", {"ingreso": ingreso, "auditorias": auditorias})
 
 @login_required
@@ -388,7 +441,7 @@ def editar_ingreso(request, ingreso_id):
     ingreso = get_object_or_404(IngresoPlayon.objects.select_related("vehiculo"), id=ingreso_id)
     vehiculo = ingreso.vehiculo
 
-    # Copias “antes” para comparar (simple y efectivo)
+    
     ingreso_antes = IngresoPlayon.objects.get(id=ingreso.id)
     vehiculo_antes = Vehiculo.objects.get(id=vehiculo.id)
 

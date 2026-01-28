@@ -8,6 +8,21 @@
     <p class="muted">Listado de ingresos registrados. Podés filtrar por activos o retirados.</p>
 
     <div class="pills" style="align-items:center;">
+      <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <input
+          type="text"
+          name="q"
+          placeholder="Buscar por patente o legajo..."
+          value="{{ q|default:'' }}"
+          style="flex:1; min-width:240px;"
+        >
+        <button class="btn btn--ghost" type="submit">Buscar</button>
+
+        {% if q %}
+          <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">Limpiar</a>
+        {% endif %}
+      </form>
+
       <a class="btn btn--ghost" href="{% url 'ingresos_en_playon' %}">📦 En el playón</a>
       <a class="btn btn--ghost" href="{% url 'retiros_playon' %}">✅ Retirados</a>
       <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">📋 Todos</a>

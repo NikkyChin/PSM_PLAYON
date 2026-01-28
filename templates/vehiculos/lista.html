@@ -10,6 +10,21 @@
     </p>
 
     <div class="pills">
+      <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <input
+          type="text"
+          name="q"
+          placeholder="Buscar por patente o legajo..."
+          value="{{ q|default:'' }}"
+          style="flex:1; min-width:240px;"
+        >
+        <button class="btn btn--ghost" type="submit">Buscar</button>
+
+        {% if q %}
+          <a class="btn btn--ghost" href="{% url 'lista_ingresos' %}">Limpiar</a>
+        {% endif %}
+      </form>
+
       <span class="pill"><b>Total:</b> {{ vehiculos|length }}</span>
 
       <span style="flex:1"></span>
