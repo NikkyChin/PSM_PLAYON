@@ -142,3 +142,17 @@ class MovimientoLugar(models.Model):
 
     def __str__(self):
         return f"{self.ingreso.nro_legajo_playon}: {self.lugar_anterior} -> {self.lugar_nuevo}"
+
+class AuditoriaIngreso(models.Model):
+    ingreso = models.ForeignKey("IngresoPlayon", on_delete=models.CASCADE, related_name="auditorias")
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    accion = models.CharField(max_length=30, default="EDICION")  # por si mañana sumás otras acciones
+    cambios = models.JSONField(default=dict, blank=True)  # Django 6 + Postgres/SQLite ok
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.ingreso.nro_legajo_playon} - {self.accion} - {self.fecha:%Y-%m-%d %H:%M}"

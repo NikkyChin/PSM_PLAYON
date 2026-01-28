@@ -1,5 +1,5 @@
 from django import forms
-from .models import IngresoPlayon, LugarPlayon
+from .models import IngresoPlayon, LugarPlayon, Vehiculo
 
 
 
@@ -60,3 +60,36 @@ class EgresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
         fields = ("nombre_retira", "dni_retira", "observaciones_egreso")
+
+
+class EditarIngresoPlayonForm(forms.ModelForm):
+    class Meta:
+        model = IngresoPlayon
+        fields = (
+            "tipo_vehiculo",
+            "lugar_infraccion",
+            "nro_legajo_playon",
+            "acta_infraccion_recibida",
+            "acta_secuestro_recibida",
+            "inventario_objetos_visibles_recibido",
+            "registro_fotografico_recibido",
+            "prueba_alcoholemia_estado",
+            "coincide_inventario",
+            "coinciden_danios_registrados",
+            "detalle_danios_no_coincidentes",
+            "bateria_desconectada",
+            "observaciones_generales",
+        )
+
+class EditarVehiculoForm(forms.ModelForm):
+    class Meta:
+        model = Vehiculo
+        fields = (
+            "dominio",
+            "marca",
+            "modelo",
+            "color",
+            "anio",
+            "nro_chasis",
+            "nro_motor",
+        )

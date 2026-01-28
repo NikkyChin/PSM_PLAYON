@@ -12,6 +12,7 @@ urlpatterns = [
     path("ingresos/<int:ingreso_id>/egreso/", views.registrar_egreso, name="registrar_egreso"),
     path("ingresos/<int:ingreso_id>/detalle/", views.detalle_ingreso, name="detalle_ingreso"),
     path("ingresos/<int:ingreso_id>/retiro/imprimir/", views.imprimir_retiro, name="imprimir_retiro"),
+    #path("ingresos/<int:ingreso_id>/editar/", views.editar_ingreso, name="editar_ingreso"), 
 
     path("playon/tablero/", views.tablero_playon, name="tablero_playon"),
     path("playon/lugar/<int:lugar_id>/", views.detalle_lugar, name="detalle_lugar"),

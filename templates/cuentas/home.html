@@ -35,7 +35,7 @@
   {% if es_admin_sistema or es_encargado_playon %}
     <div class="card">
       <div class="h2">Acciones rápidas</div>
-      <div class="muted">Lo más usado del día a día.</div>
+      <!-- <div class="muted">Lo más usado del día a día.</div> -->
 
       <div class="grid-actions">
         <a class="action" href="{% url 'tablero_playon' %}">
@@ -68,13 +68,13 @@
           <div class="action__desc">Búsqueda por dominio, modelo, etc.</div>
         </a>
 
-        {% if es_admin_sistema %}
+        <!-- {% if es_admin_sistema %}
           <a class="action" href="/admin/">
             <div class="action__icon">🛠️</div>
             <div class="action__title">Admin Django</div>
             <div class="action__desc">Usuarios, modelos y auditoría.</div>
           </a>
-        {% endif %}
+        {% endif %} -->
       </div>
     </div>
   {% endif %}
