@@ -4,12 +4,12 @@ from django.contrib.auth.models import User
 
 class Vehiculo(models.Model):
     dominio = models.CharField("Dominio (Patente)", max_length=10, unique=True)
-    marca = models.CharField(max_length=50, blank=True)
-    modelo = models.CharField(max_length=50, blank=True)
-    color = models.CharField(max_length=30, blank=True)
-    nro_chasis = models.CharField("N° de chasis", max_length=50, blank=True)
-    nro_motor = models.CharField("N° de motor", max_length=50, blank=True)
-    anio = models.PositiveIntegerField("Año", null=True, blank=True)
+    marca = models.CharField(max_length=50, blank=False)
+    modelo = models.CharField(max_length=50, blank=False)
+    color = models.CharField(max_length=30, blank=False)
+    nro_chasis = models.CharField("N° de chasis", max_length=50, blank=False)
+    nro_motor = models.CharField("N° de motor", max_length=50, blank=False)
+    anio = models.PositiveIntegerField("Año", null=True, blank=False)
 
     fecha_alta = models.DateTimeField("Fecha de alta en sistema", auto_now_add=True)
 
@@ -60,14 +60,14 @@ class IngresoPlayon(models.Model):
     fecha_ingreso = models.DateTimeField("Fecha de ingreso", auto_now_add=True)
 
     # Datos del vehículo (captura en el momento del ingreso; puede diferir del Vehiculo base)
-    tipo_vehiculo = models.CharField("Tipo de vehículo", max_length=20, choices=TIPO_VEHICULO_CHOICES, blank=True)
-    marca = models.CharField(max_length=50, blank=True)
-    modelo = models.CharField(max_length=50, blank=True)
-    anio = models.PositiveIntegerField("Año", null=True, blank=True)
-    color = models.CharField(max_length=30, blank=True)
+    tipo_vehiculo = models.CharField("Tipo de vehículo", max_length=20, choices=TIPO_VEHICULO_CHOICES, blank=False)
+    marca = models.CharField(max_length=50, blank=False)
+    modelo = models.CharField(max_length=50, blank=False)
+    anio = models.PositiveIntegerField("Año", null=True, blank=False)
+    color = models.CharField(max_length=30, blank=False)
 
     nro_legajo_playon = models.CharField("N° de legajo en playón", max_length=30, unique=True)
-    lugar_infraccion = models.CharField("Lugar de la infracción", max_length=255, blank=True)
+    lugar_infraccion = models.CharField("Lugar de la infracción", max_length=255, blank=False)
 
     # Documentación anexada (checklist)
     acta_infraccion_recibida = models.BooleanField("Acta de infracción recibida", default=False)
@@ -88,13 +88,13 @@ class IngresoPlayon(models.Model):
     )
 
     # Observaciones de ingreso
-    coincide_inventario = models.BooleanField("¿Coincide el inventario?", default=True)
-    coinciden_danios_registrados = models.BooleanField("¿Coinciden los daños registrados?", default=True)
+    coincide_inventario = models.BooleanField("¿Coincide el inventario?", default=False)
+    coinciden_danios_registrados = models.BooleanField("¿Coinciden los daños registrados?", default=False)
     detalle_danios_no_coincidentes = models.TextField("Detalle de daños no coincidentes", blank=True)
     bateria_desconectada = models.BooleanField("Batería desconectada", default=False)
 
     # Ubicación (texto libre) + lugar estructurado del tablero
-    ubicacion_interna = models.CharField("Ubicación interna en playa", max_length=100, blank=True)
+    ubicacion_interna = models.CharField("Ubicación interna en playa", max_length=100, blank=False)
     lugar = models.ForeignKey(
         LugarPlayon,
         on_delete=models.PROTECT,
