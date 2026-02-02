@@ -1,5 +1,7 @@
+from time import timezone
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone as djtz
 
 
 class Vehiculo(models.Model):
@@ -16,6 +18,11 @@ class Vehiculo(models.Model):
     def __str__(self):
         return f"{self.dominio} - {self.marca} {self.modelo}".strip()
 
+    def reincidencias_total(self):
+        return self.ingresos.count()
+    
+    def reincidencias_alcoholemia(self):
+        return self.ingresos.filter(prueba_alcoholemia_estado="SI").count()
 
 class LugarPlayon(models.Model):
     ESTADO_CHOICES = [
@@ -127,6 +134,17 @@ class IngresoPlayon(models.Model):
 
     def __str__(self):
         return f"Ingreso {self.nro_legajo_playon} - {self.vehiculo.dominio}"
+    
+    @property
+    def dias_en_playon(self):
+    # Día 1 cuenta desde el día que ingresó
+        inicio = djtz.localtime(self.fecha_ingreso).date()
+
+        fin_dt = self.fecha_retiro if (self.retirado and self.fecha_retiro) else djtz.now()
+        fin = djtz.localtime(fin_dt).date()
+
+        return (fin - inicio).days + 1
+
 
 
 class MovimientoLugar(models.Model):

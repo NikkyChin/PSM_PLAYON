@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     
-    path("/nuevo/", views.nuevo_ingreso_playon, name="nuevo_ingreso_playon"),
+    path("nuevo/", views.nuevo_ingreso_playon, name="nuevo_ingreso_playon"),
 
     path("", views.lista_ingresos, name="lista_ingresos"),  # todos
     path("activos/", views.ingresos_en_playon, name="ingresos_en_playon"),  # solo los que están adentro

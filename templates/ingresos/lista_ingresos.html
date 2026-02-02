@@ -44,9 +44,12 @@
               <th>Dominio</th>
               <th>Lugar</th>
               <th>Ingreso</th>
+              <th>Días</th>
+              <th>Reincidencias</th>
+              <th>Alcoholemia</th>
               <th>Estado</th>
               <th>Retiro</th>
-              <th style="width: 320px;">Acciones</th>
+              <th style="width: 360px;">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -64,6 +67,22 @@
                 </td>
 
                 <td>{{ i.fecha_ingreso }}</td>
+
+                <td style="color: var(--text); font-weight: 800;">
+                  {{ i.dias_en_playon }}
+                </td>
+
+                <td>
+                  <span class="pill" style="display:inline-block;">
+                    {{ i.reincidencias }}
+                  </span>
+                </td>
+
+                <td>
+                  <span class="pill" style="display:inline-block;">
+                    {{ i.reincidencias_alcoholemia }}
+                  </span>
+                </td>
 
                 <td>
                   {% if i.retirado %}

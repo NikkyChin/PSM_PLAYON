@@ -4,11 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.http import HttpResponseForbidden
-from django.db.models import Q
-from django.views.decorators.http import require_POST
+from django.db.models import Q, Count
 from django.db import transaction
 from vehiculos.forms import IngresoPlayonForm
-from vehiculos.models import IngresoPlayon, MovimientoLugar, LugarPlayon, AuditoriaIngreso
+from vehiculos.models import IngresoPlayon, MovimientoLugar, AuditoriaIngreso
 from vehiculos.models import Vehiculo
 
 def _diff_instance_form(original_obj, form):
@@ -30,6 +29,21 @@ def _diff_instance_form(original_obj, form):
         cambios[field] = {"antes": antes, "despues": despues}
     return cambios
 
+def _qs_ingresos_base():
+    return (
+        IngresoPlayon.objects
+        .select_related("vehiculo", "recibido_por", "entregado_por", "lugar")
+        .annotate(
+            reincidencias=Count("vehiculo__ingresos", distinct=True),
+            reincidencias_alcoholemia=Count(
+                "vehiculo__ingresos",
+                filter=Q(vehiculo__ingresos__prueba_alcoholemia_estado="SI"),
+                distinct=True
+            ),
+        )
+        .order_by("-fecha_ingreso")
+    )
+    
 
 @login_required
 def nuevo_ingreso_playon(request):
@@ -177,17 +191,12 @@ def detalle_ingreso(request, ingreso_id):
 @login_required
 def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permiso.html")
 
     q = (request.GET.get("q") or "").strip()
 
-    ingresos = (
-        IngresoPlayon.objects
-        .select_related("vehiculo", "recibido_por", "entregado_por")
-        .order_by("-fecha_ingreso")
-    )
+    ingresos = _qs_ingresos_base()
 
     if q:
         ingresos = ingresos.filter(
@@ -201,20 +210,17 @@ def lista_ingresos(request):
         "q": q,
     })
 
+    
+
 @login_required
 def ingresos_en_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permiso.html")
 
     q = (request.GET.get("q") or "").strip()
 
-    ingresos = (
-        IngresoPlayon.objects
-        .select_related("vehiculo", "recibido_por", "entregado_por")
-        .order_by("-fecha_ingreso")
-    )
+    ingresos = _qs_ingresos_base().filter(retirado=False)
 
     if q:
         ingresos = ingresos.filter(
@@ -224,24 +230,19 @@ def ingresos_en_playon(request):
 
     return render(request, "ingresos/lista_ingresos.html", {
         "ingresos": ingresos,
-        "titulo": "Ingresos al Playón",
+        "titulo": "En el playón",
         "q": q,
     })
 
 @login_required
 def retiros_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permiso.html")
 
     q = (request.GET.get("q") or "").strip()
 
-    ingresos = (
-        IngresoPlayon.objects
-        .select_related("vehiculo", "recibido_por", "entregado_por")
-        .order_by("-fecha_ingreso")
-    )
+    ingresos = _qs_ingresos_base().filter(retirado=True)
 
     if q:
         ingresos = ingresos.filter(
@@ -251,9 +252,10 @@ def retiros_playon(request):
 
     return render(request, "ingresos/lista_ingresos.html", {
         "ingresos": ingresos,
-        "titulo": "Ingresos al Playón",
+        "titulo": "Retirados",
         "q": q,
     })
+
 
 
 

@@ -95,6 +95,12 @@
       <div class="row"><div class="k">Retirado</div><div class="v">{{ ingreso.retirado|yesno:"Sí,No" }}</div></div>
       <div class="row"><div class="k">Fecha retiro</div><div class="v">{{ ingreso.fecha_retiro|default:"-" }}</div></div>
 
+      <!-- días en el playón -->
+      <!-- <pre>{{ ingreso }} | {{ ingreso.fecha_ingreso }} | {{ ingreso.retirado }} | {{ ingreso.fecha_retiro }}</pre> -->
+
+      <div class="row"><div class="k">Días en el playón</div><div class="v">{{ ingreso.dias_en_playon|default:"-" }} día(s)</div></div>
+
+
       <div class="row"><div class="k">Entregado por</div><div class="v">{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</div></div>
       <div class="row"><div class="k">Nombre retira</div><div class="v">{{ ingreso.nombre_retira|default:"-" }}</div></div>
 
@@ -103,8 +109,8 @@
     </div>
   </div>
 
-  <div class="sign">
-    <h2 style="font-size:14px; margin: 0;">Firma del retiro</h2>
+  <div class="sign" style="margin-top: 150px;">
+    <h2 style="font-size:14px; margin: 50px 0 75px 0;">Firma del retiro</h2>
     <div class="sign-grid">
       <div class="line">Firma</div>
       <div class="line">Aclaración</div>
@@ -115,6 +121,7 @@
   <div class="actions">
     <button onclick="window.print()">🖨️ Imprimir</button>
     <button onclick="history.back()">⬅ Volver</button>
+    <button onclick="window.location.href='{% url 'lista_ingresos' %}'">🏠 Inicio</button>
   </div>
 
 </body>
