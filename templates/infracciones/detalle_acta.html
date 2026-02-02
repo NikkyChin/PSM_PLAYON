@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Acta {{ acta.nro_acta }}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Acta {{ acta.nro_acta }}</div>
+    <p class="muted">Dominio {{ acta.dominio }} — Cargada por {{ acta.inspector.username }} — {{ acta.creada_en }}</p>
+
+    <div class="pills">
+      <a class="btn btn--bad" href="{% url 'infracciones_editar' acta.id %}">Editar</a>
+      <a class="btn btn--ghost" href="{% url 'infracciones_lista' %}">Volver</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="h2">Datos del infractor</div>
+    <p><b>DNI:</b> {{ acta.dni_infractor }}</p>
+    <p><b>Nombre:</b> {{ acta.nombre_infractor }}</p>
+    <p><b>Apellido:</b> {{ acta.apellido_infractor }}</p>
+    <p><b>Es titular:</b> {{ acta.es_titular|yesno:"Sí,No" }}</p>
+    <p><b>N° cédula:</b> {{ acta.nro_cedula|default:"-" }}</p>
+  </div>
+
+  <div class="card">
+    <div class="h2">Vehículo</div>
+    <p><b>Dominio:</b> {{ acta.dominio }}</p>
+    <p><b>Marca:</b> {{ acta.marca|default:"-" }}</p>
+    <p><b>Modelo:</b> {{ acta.modelo|default:"-" }}</p>
+    <p><b>Retenido para playón:</b> {{ acta.retenido_playon|yesno:"Sí,No" }}</p>
+  </div>
+
+  <div class="card">
+    <div class="h2">Descripción</div>
+    <p style="white-space:pre-wrap;">{{ acta.descripcion }}</p>
+  </div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Mis actas{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Mis actas</div>
+
+    <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <input type="text" name="q" placeholder="Buscar por acta, DNI o dominio..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
+      <button class="btn btn--ghost" type="submit">Buscar</button>
+      {% if q %}
+        <a class="btn btn--ghost" href="{% url 'infracciones_lista' %}">Limpiar</a>
+      {% endif %}
+      <span style="flex:1"></span>
+      <a class="btn btn--ok" href="{% url 'infracciones_nueva' %}">Nueva acta</a>
+    </form>
+  </div>
+
+  <div class="card">
+    {% if actas %}
+      <div style="overflow:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>N° Acta</th>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Dominio</th>
+              <th>Retenido</th>
+              <th>Creada</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in actas %}
+              <tr>
+                <td style="color:var(--text); font-weight:900;">{{ a.nro_acta }}</td>
+                <td>{{ a.dni_infractor }}</td>
+                <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }}</td>
+                <td style="color:var(--text); font-weight:900;">{{ a.dominio }}</td>
+                <td>{{ a.retenido_playon|yesno:"Sí,No" }}</td>
+                <td>{{ a.creada_en }}</td>
+                <td>
+                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <a class="btn btn--ghost" href="{% url 'infracciones_detalle' a.id %}">Detalle</a>
+                    <a class="btn btn--bad" href="{% url 'infracciones_editar' a.id %}">Editar</a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Todavía no cargaste actas.</p>
+    {% endif %}
+  </div>
+{% endblock %}
