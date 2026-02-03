@@ -1,8 +1,7 @@
 from django.shortcuts import render
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.db.models import Q
 from .models import Infraccion
 from .forms import InfraccionForm
 from .permissions import es_inspector
@@ -20,11 +19,9 @@ def lista_actas(request):
     if q:
         # Búsqueda simple por nro_acta, dni o dominio
         actas = actas.filter(
-            nro_acta__icontains=q
-        ) | actas.filter(
-            dni_infractor__icontains=q
-        ) | actas.filter(
-            dominio__icontains=q
+            Q(nro_acta__icontains=q) |
+            Q(dni_infractor__icontains=q) |
+            Q(dominio__icontains=q)
         )
 
     return render(request, "infracciones/lista_actas.html", {"actas": actas, "q": q})
@@ -41,7 +38,7 @@ def nueva_acta(request):
             acta = form.save(commit=False)
             acta.inspector = request.user
             acta.save()
-            return redirect("infracciones_lista")
+            return redirect("infracciones:lista")
     else:
         form = InfraccionForm()
 
@@ -68,7 +65,7 @@ def editar_acta(request, acta_id):
         form = InfraccionForm(request.POST, instance=acta)
         if form.is_valid():
             form.save()
-            return redirect("infracciones_detalle", acta_id=acta.id)
+            return redirect("infracciones:detalle", acta_id=acta.id)
     else:
         form = InfraccionForm(instance=acta)
 

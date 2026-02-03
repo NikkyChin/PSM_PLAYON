@@ -21,7 +21,7 @@ class UsuarioConRolMiddleware:
 
             # excluir rutas permitidas
             if not any(ruta.startswith(x) for x in self.EXCLUIDAS):
-                if not request.user.groups.exists():
+                if not request.user.groups.exists() and not request.user.is_superuser:
                     return render(request, "cuentas/sin_rol.html")
 
         return self.get_response(request)

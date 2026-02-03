@@ -9,10 +9,10 @@
       <input type="text" name="q" placeholder="Buscar por acta, DNI o dominio..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
       <button class="btn btn--ghost" type="submit">Buscar</button>
       {% if q %}
-        <a class="btn btn--ghost" href="{% url 'infracciones_lista' %}">Limpiar</a>
+        <a class="btn btn--ghost" href="{% url 'infracciones:lista' %}">Limpiar</a>
       {% endif %}
       <span style="flex:1"></span>
-      <a class="btn btn--ok" href="{% url 'infracciones_nueva' %}">Nueva acta</a>
+      <a class="btn btn--ok" href="{% url 'infracciones:nueva' %}">Nueva acta</a>
     </form>
   </div>
 
@@ -42,8 +42,8 @@
                 <td>{{ a.creada_en }}</td>
                 <td>
                   <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <a class="btn btn--ghost" href="{% url 'infracciones_detalle' a.id %}">Detalle</a>
-                    <a class="btn btn--bad" href="{% url 'infracciones_editar' a.id %}">Editar</a>
+                    <a class="btn btn--ghost" href="{% url 'infracciones:detalle' a.id %}">Detalle</a>
+                    <a class="btn btn--bad" href="{% url 'infracciones:editar' a.id %}">Editar</a>
                   </div>
                 </td>
               </tr>

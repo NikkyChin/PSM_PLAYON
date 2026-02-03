@@ -23,5 +23,5 @@ urlpatterns = [
     path("vehiculos/", include("vehiculos.urls")), 
     path("playon/", include("playon.urls")),
     path("ingresos/", include("ingresos.urls")),
-    #path("infracciones/", include("infracciones.urls")), 
+    path("infracciones/", include("infracciones.urls")),
 ]

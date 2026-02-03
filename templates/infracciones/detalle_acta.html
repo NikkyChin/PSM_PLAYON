@@ -7,8 +7,8 @@
     <p class="muted">Dominio {{ acta.dominio }} — Cargada por {{ acta.inspector.username }} — {{ acta.creada_en }}</p>
 
     <div class="pills">
-      <a class="btn btn--bad" href="{% url 'infracciones_editar' acta.id %}">Editar</a>
-      <a class="btn btn--ghost" href="{% url 'infracciones_lista' %}">Volver</a>
+      <a class="btn btn--bad" href="{% url 'infracciones:editar' acta.id %}">Editar</a>
+      <a class="btn btn--ghost" href="{% url 'infracciones:lista' %}">Volver</a>
     </div>
   </div>
 

@@ -17,7 +17,6 @@
               alt="Municipalidad"
               style="width:105%; height:105%; object-fit:contain;">
         </div>
-
         <div class="brand__text">
           <div class="brand__title">PSM Playón</div>
           <div class="brand__sub">Depósito municipal</div>
@@ -28,8 +27,10 @@
 
       <nav class="topnav">
         <a class="topnav__link" href="{% url 'home' %}">Inicio</a>
+        {% if es_admin_sistema or es_encargado_playon %}
         <a class="topnav__link" href="{% url 'tablero_playon' %}">Tablero</a>
         <a class="topnav__link" href="{% url 'lista_ingresos' %}">Ingresos</a>
+        {% endif %}
       </nav>
 
       <div class="userbox">
