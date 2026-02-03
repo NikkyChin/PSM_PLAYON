@@ -33,4 +33,35 @@
     <div class="h2">Descripción</div>
     <p style="white-space:pre-wrap;">{{ acta.descripcion }}</p>
   </div>
+
+  <div class="card">
+  <h2>Auditoría (últimos cambios)</h2>
+
+  {% if auditorias %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Usuario</th>
+          <th>Acción</th>
+          <th>Cambios</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in auditorias %}
+          <tr>
+            <td>{{ a.fecha }}</td>
+            <td>{{ a.usuario.username }}</td>
+            <td>{{ a.accion }}</td>
+            <td style="white-space:pre-wrap;">{{ a.cambios_txt|default:"-" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">Sin cambios registrados.</p>
+  {% endif %}
+</div>
+
+
 {% endblock %}

@@ -45,3 +45,22 @@ class Infraccion(models.Model):
 
     def __str__(self):
         return f"Acta {self.nro_acta} - {self.dominio}"
+
+
+class AuditoriaInfraccion(models.Model):
+    infraccion = models.ForeignKey(
+        "Infraccion",
+        on_delete=models.CASCADE,
+        related_name="auditorias",
+    )
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    accion = models.CharField(max_length=30, default="EDICION")
+    cambios_txt = models.TextField(blank=True)  # <-- texto legible, no JSON
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"Acta {self.infraccion.nro_acta} - {self.accion} - {self.fecha:%Y-%m-%d %H:%M}"
