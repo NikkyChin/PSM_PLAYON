@@ -1,0 +1,145 @@
+# Cierre formal — PSM Playón v1.0 (uso interno)
+
+## 1) Objetivo de la versión
+
+Disponer de un **sistema interno básico y funcional** para el control operativo del Playón Municipal, centralizando la información de ingresos y egresos vehiculares y reemplazando el registro manual.
+
+## 2) Alcance incluido
+
+### Funcionalidades principales
+
+* Autenticación de usuarios.
+* Gestión de roles básicos:
+
+  * Encargado de Playón
+  * Administrador del sistema
+* Registro de **ingreso de vehículos** al playón.
+* Registro de **egreso / retiro** de vehículos.
+* Asignación manual de **lugar físico** dentro del playón.
+* Listado de:
+
+  * Vehículos ingresados
+  * Vehículos retirados
+  * Historial general de ingresos
+* Generación de **acta de retiro imprimible**.
+* Búsqueda por:
+
+  * Patente
+  * Número de legajo
+
+### Interfaz
+
+* Panel principal con accesos al módulo Playón.
+* Tablero visual del playón con estados de lugares (libre / ocupado).
+* Formularios unificados para ingreso y retiro.
+
+## 3) Roles contemplados
+
+* **Encargado de Playón**
+  Operación diaria: ingreso, asignación de lugar, retiro y actas.
+* **Administrador**
+  Soporte, configuración y control general del sistema.
+
+*(Inspector y Juez no forman parte del alcance funcional de esta versión)*
+
+## 4) Fuera de alcance en v1.0
+
+* Contador de días en el playón.
+* Registro de reincidencias.
+* Módulo de infracciones.
+* Auditoría de modificaciones.
+* Edición avanzada de ingresos/vehículos.
+* Acceso multi-PC o despliegue en servidor municipal.
+* Reportes, estadísticas o exportaciones.
+* Integración con juzgado o inspectoría.
+* Pruebas automatizadas.
+
+## 5) Estado del sistema al cierre
+
+* **Sistema estable y utilizable** para carga y consulta diaria.
+* Operativo en entorno local (uso interno).
+* Flujo validado manualmente:
+
+  * Login → Ingreso → Asignación → Retiro → Acta.
+
+## 6) Limitaciones conocidas
+
+* Dependencia de una sola PC.
+* Sin control histórico avanzado.
+* Cambios estructurales requieren intervención técnica directa.
+* No preparado aún para producción institucional.
+
+## 7) Cierre de versión
+
+La **v1.0 interna** se considera **entregada y funcional** como primera etapa del sistema, cumpliendo el objetivo de digitalizar el manejo básico del Playón Municipal.
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Dale. Te dejo un **cierre formal** estilo “release notes + acta interna”, simple y usable para pegar en un doc o mandar por mail.
+
+---
+
+# Cierre formal — PSM Playón v1.1 (uso interno)
+
+## 1) Objetivo de la versión
+
+Consolidar y estabilizar el módulo **Playón** para operación interna, incorporando mejoras de control y seguimiento sobre ingresos/egresos, búsqueda y visualización de información clave.
+
+## 2) Alcance incluido
+
+### Funcionalidades operativas
+
+* Autenticación y control de acceso por roles (grupos).
+* Registro de **ingreso** al playón con validaciones básicas.
+* Asignación y gestión de **lugar** dentro del playón (estado libre/ocupado, etc.).
+* Registro de **egreso/retiro** con generación de acta imprimible.
+* Listado de ingresos con filtros: activos / retirados / todos.
+* Búsqueda por **patente** o **número de legajo**.
+
+### Mejoras de trazabilidad y control
+
+* Cálculo de **días en el playón** (incluye día de ingreso como día 1).
+* Incorporación de “Días en el playón” en el acta imprimible.
+* Opción de **editar ingreso** y **editar datos del vehículo** (según permisos).
+* Auditoría de ediciones (registro de quién edita y qué cambia) según lo implementado.
+
+### Ajustes de interfaz por rol
+
+* Ocultamiento de accesos a “Tablero” e “Ingresos” para perfiles que no los usan (Inspector/Juez), dejando cada usuario más “encarrilado” a su módulo.
+
+## 3) Roles contemplados (operación interna)
+
+* Encargado de Playón
+* Administrador del sistema
+* Inspector (en desarrollo / habilitación por etapas)
+* Juez (en desarrollo / habilitación por etapas)
+
+## 4) Fuera de alcance en v1.1
+
+* Publicación en servidor municipal / acceso desde otras oficinas.
+* Módulo Inspector completo (actas, adjuntos, etc.) finalizado.
+* Módulo Juez completo (resoluciones, workflow formal, etc.).
+* Reportes avanzados, dashboards, exportaciones (PDF masivos/Excel).
+* Hardening de seguridad para producción (HTTPS, backups automáticos, auditoría ampliada, logs centralizados).
+* Pruebas automatizadas completas (unit/integration).
+
+## 5) Estado actual de uso
+
+**Apta para uso interno operativo del Playón** en el equipo donde se encuentra instalado el sistema, con flujo:
+Login → Alta ingreso → Asignación lugar → Seguimiento → Retiro → Acta.
+
+## 6) Recomendaciones operativas
+
+* Mantener uso interno controlado (operadores designados).
+* Ejecutar una verificación diaria simple: alta/consulta/retiro para detectar errores temprano.
+* Respaldo manual de la base de datos previo a cambios grandes (antes de tocar modelos/migraciones).
+
+## 7) Próximos pasos (v1.2 / v2.0)
+
+* Cierre del módulo Inspector (ABM actas propias + permisos).
+* Definición del flujo con Juzgado y estados administrativos.
+* Revisión de modelo de datos definitivo + migraciones limpias.
+* Preparación para despliegue municipal (servidor, red interna, usuarios, backups, seguridad).

@@ -4,8 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Infraccion, AuditoriaInfraccion
 from .forms import InfraccionForm
-from .permissions import es_inspector
-
+from .permissions import es_inspector, es_admin_sistema
 
 def _diff_to_text(original_obj, form):
     """
@@ -28,23 +27,28 @@ def _diff_to_text(original_obj, form):
 
     return "\n".join(lineas)
 
-
 @login_required
 def lista_actas(request):
     if not es_inspector(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
-    actas = Infraccion.objects.filter(inspector=request.user).order_by("-creada_en")
+    actas = Infraccion.objects.all()
+
+    # si NO es admin, solo sus actas
+    if not es_admin_sistema(request.user):
+        actas = actas.filter(inspector=request.user)
 
     if q:
-        # Búsqueda simple por nro_acta, dni o dominio
         actas = actas.filter(
             Q(nro_acta__icontains=q) |
             Q(dni_infractor__icontains=q) |
-            Q(dominio__icontains=q)
+            Q(dominio__icontains=q)|
+            Q(inspector__username__icontains=q)
         )
+
+    actas = actas.order_by("-creada_en")
 
     return render(request, "infracciones/lista_actas.html", {"actas": actas, "q": q})
 
@@ -72,10 +76,14 @@ def detalle_acta(request, acta_id):
     if not es_inspector(request.user):
         return render(request, "cuentas/no_permiso.html")
 
-    acta = get_object_or_404(Infraccion, id=acta_id, inspector=request.user)
-    auditorias = acta.auditorias.select_related("usuario").all()[:30]
-    return render(request, "infracciones/detalle_acta.html", {"acta": acta, "auditorias": auditorias})
+    qs = Infraccion.objects.all()
+    if not es_admin_sistema(request.user):
+        qs = qs.filter(inspector=request.user)
 
+    acta = get_object_or_404(qs, id=acta_id)
+    auditorias = acta.auditorias.select_related("usuario").all()[:30]
+
+    return render(request, "infracciones/detalle_acta.html", {"acta": acta, "auditorias": auditorias})
 
 
 @login_required
@@ -83,9 +91,12 @@ def editar_acta(request, acta_id):
     if not es_inspector(request.user):
         return render(request, "cuentas/no_permiso.html")
 
-    acta = get_object_or_404(Infraccion, id=acta_id, inspector=request.user)
+    qs = Infraccion.objects.all()
+    if not es_admin_sistema(request.user):
+        qs = qs.filter(inspector=request.user)
 
-    # snapshot antes
+    acta = get_object_or_404(qs, id=acta_id)
+
     acta_antes = Infraccion.objects.get(id=acta.id)
 
     if request.method == "POST":
@@ -95,7 +106,6 @@ def editar_acta(request, acta_id):
 
             form.save()
 
-            # guardar auditoría solo si hubo cambios reales
             if cambios_txt.strip():
                 AuditoriaInfraccion.objects.create(
                     infraccion=acta,
@@ -108,8 +118,4 @@ def editar_acta(request, acta_id):
     else:
         form = InfraccionForm(instance=acta)
 
-    return render(request, "infracciones/acta_form.html", {
-        "form": form,
-        "modo": "editar",
-        "acta": acta
-    })
+    return render(request, "infracciones/acta_form.html", {"form": form, "modo": "editar", "acta": acta})

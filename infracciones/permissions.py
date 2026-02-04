@@ -1,11 +1,13 @@
 def es_admin_sistema(user) -> bool:
-    return (
-        user.is_authenticated
-        and (user.is_superuser or user.groups.filter(name="ADMIN_SISTEMA").exists())
-    )
+    if not user.is_authenticated:
+        return False
+    grupos = set(user.groups.values_list("name", flat=True))
+    return ("ADMIN_SISTEMA" in grupos) or user.is_superuser
+
 
 def es_inspector(user) -> bool:
-    return (
-        user.is_authenticated
-        and (user.is_superuser or user.groups.filter(name="INSPECTOR").exists())
-    )
+    if not user.is_authenticated:
+        return False
+    grupos = set(user.groups.values_list("name", flat=True))
+    # inspector o admin
+    return ("INSPECTOR" in grupos) or ("ADMIN_SISTEMA" in grupos) or user.is_superuser

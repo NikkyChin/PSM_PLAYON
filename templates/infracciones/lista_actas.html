@@ -1,9 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Mis actas{% endblock %}
+{% block title %}Actas{% endblock %}
 
 {% block content %}
   <div class="card">
-    <div class="h1">Mis actas</div>
+    {% if es_inspector%}
+      <div class="h1">Mis actas</div>
+    {% else %}
+      <div class="h1">Actas de infracciones</div>
+    {% endif %}
 
     <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
       <input type="text" name="q" placeholder="Buscar por acta, DNI o dominio..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
@@ -22,6 +26,7 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Usuario</th>
               <th>N° Acta</th>
               <th>DNI</th>
               <th>Nombre</th>
@@ -34,6 +39,7 @@
           <tbody>
             {% for a in actas %}
               <tr>
+                <td>{{ a.inspector.username }}</td>
                 <td style="color:var(--text); font-weight:900;">{{ a.nro_acta }}</td>
                 <td>{{ a.dni_infractor }}</td>
                 <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }}</td>

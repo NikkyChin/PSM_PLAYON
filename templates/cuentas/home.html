@@ -35,9 +35,7 @@
   {% if es_admin_sistema or es_encargado_playon %}
     <div class="card">
       {{ ingreso.dias_en_playon }}
-      Reincidencias: {{ vehiculo.reincidencias_total }}
-      Por alcoholemia: {{ vehiculo.reincidencias_alcoholemia }}
-      <div class="h2">Acciones rápidas</div>
+      <div class="h2">Modulo Encargado de Playon</div>
       <!-- <div class="muted">Lo más usado del día a día.</div> -->
 
       <div class="grid-actions">
@@ -84,22 +82,41 @@
 
   {% if es_admin_sistema or es_inspector %}
     <div class="card">
-      <div class="h2">Módulo Inspector</div>
+      {% if es_admin_sistema %}
+        <div class="h2">Módulo Inspector de Tránsito</div>
 
-      <div class="grid-actions">
-        <a class="action" href="{% url 'infracciones:nueva' %}">
-          <div class="action__icon">📝</div>
-          <div class="action__title">Registrar infracción</div>
-          <div class="action__desc">Alta de acta.</div>
-        </a>
+        <div class="grid-actions">
+          <a class="action" href="{% url 'infracciones:nueva' %}">
+            <div class="action__icon">📝</div>
+            <div class="action__title">Registrar infracción</div>
+            <div class="action__desc">Alta de acta.</div>
+          </a>
 
-        <a class="action" href="{% url 'infracciones:lista' %}">
-          <div class="action__icon">🔎</div>
-          <div class="action__title">Mis infracciones</div>
-          <div class="action__desc">Ver historial propio.</div>
-        </a>
-      </div>
+          <a class="action" href="{% url 'infracciones:lista' %}">
+            <div class="action__icon">🔎</div>
+            <div class="action__title">Historial de infracciones</div>
+            <div class="action__desc">Ver historial de todas las infracciones.</div>
+          </a>
+        </div>
+      {% else %}
+        <div class="h2">Módulo Inspector de Tránsito</div>
+
+        <div class="grid-actions">
+          <a class="action" href="{% url 'infracciones:nueva' %}">
+            <div class="action__icon">📝</div>
+            <div class="action__title">Registrar infracción</div>
+            <div class="action__desc">Alta de acta.</div>
+          </a>
+
+          <a class="action" href="{% url 'infracciones:lista' %}">
+            <div class="action__icon">🔎</div>
+            <div class="action__title">Mis infracciones</div>
+            <div class="action__desc">Ver historial propio.</div>
+          </a>
+        </div>
+      {% endif %}
     </div>
+
   {% endif %}
 
   {% if es_juez %}

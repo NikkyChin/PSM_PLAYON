@@ -9,24 +9,7 @@ from vehiculos.forms import EditarVehiculoForm, EditarIngresoPlayonForm
 
 
 
-def _diff_instance_form(original_obj, form):
-    """
-    Devuelve dict {campo: {"antes": x, "despues": y}} solo para fields que cambiaron.
-    Funciona con ModelForm. CAMBIAR EN EL FUTURO
-    """
-    cambios = {}
-    for field in form.changed_data:
-        antes = getattr(original_obj, field)
-        despues = form.cleaned_data.get(field)
 
-        # normalizar datetimes a str si querés evitar problemas JSON
-        if hasattr(antes, "isoformat"):
-            antes = antes.isoformat()
-        if hasattr(despues, "isoformat"):
-            despues = despues.isoformat()
-
-        cambios[field] = {"antes": antes, "despues": despues}
-    return cambios
 
 @login_required
 def tablero_playon(request):
@@ -142,61 +125,7 @@ def reactivar_lugar(request, lugar_id):
 
 
 
-@login_required
-def editar_ingreso(request, ingreso_id):
-    grupos = set(request.user.groups.values_list("name", flat=True))
-    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
 
-    ingreso = get_object_or_404(IngresoPlayon.objects.select_related("vehiculo"), id=ingreso_id)
-    vehiculo = ingreso.vehiculo
-
-    
-    ingreso_antes = IngresoPlayon.objects.get(id=ingreso.id)
-    vehiculo_antes = Vehiculo.objects.get(id=vehiculo.id)
-
-    if request.method == "POST":
-        form_ingreso = EditarIngresoPlayonForm(request.POST, instance=ingreso)
-        form_vehiculo = EditarVehiculoForm(request.POST, instance=vehiculo)
-
-        if form_ingreso.is_valid() and form_vehiculo.is_valid():
-            cambios_ingreso = _diff_instance_form(ingreso_antes, form_ingreso)
-            cambios_vehiculo = _diff_instance_form(vehiculo_antes, form_vehiculo)
-
-            cambios = {}
-            if cambios_ingreso:
-                cambios["ingreso"] = cambios_ingreso
-            if cambios_vehiculo:
-                cambios["vehiculo"] = cambios_vehiculo
-
-            with transaction.atomic():
-                form_vehiculo.save()
-                form_ingreso.save()
-
-                # Guardar auditoría SOLO si hubo cambios reales
-                if cambios:
-                    AuditoriaIngreso.objects.create(
-                        ingreso=ingreso,
-                        usuario=request.user,
-                        accion="EDICION",
-                        cambios=cambios,
-                    )
-
-            return redirect("detalle_ingreso", ingreso_id=ingreso.id)
-
-    else:
-        form_ingreso = EditarIngresoPlayonForm(instance=ingreso)
-        form_vehiculo = EditarVehiculoForm(instance=vehiculo)
-
-    return render(
-        request,
-        "vehiculos/editar_ingreso.html",
-        {
-            "ingreso": ingreso,
-            "form_ingreso": form_ingreso,
-            "form_vehiculo": form_vehiculo,
-        },
-    )
 
 @require_POST
 @login_required
