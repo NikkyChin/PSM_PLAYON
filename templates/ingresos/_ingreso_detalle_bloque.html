@@ -1,4 +1,5 @@
-<div class="card" style="margin: 0; padding: 0; background: transparent; border: 0; box-shadow:none;">
+<div class="card" style="margin: 0; background: transparent; border: 0; box-shadow:none; padding:0;">
+
   <!-- VEHICULO -->
   <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;">
     <div class="h2">Datos del vehículo</div>
@@ -6,129 +7,128 @@
       Dominio: <b style="color:var(--text)">{{ ingreso.vehiculo.dominio }}</b>
     </div>
   </div>
-  <hr class="hr">
 
-  <table class="table">
-    <tbody>
-      <tr><th>Dominio</th><td>{{ ingreso.vehiculo.dominio }}</td></tr>
-      <tr><th>Marca</th><td>{{ ingreso.vehiculo.marca|default:"-" }}</td></tr>
-      <tr><th>Modelo</th><td>{{ ingreso.vehiculo.modelo|default:"-" }}</td></tr>
-      <tr><th>Color</th><td>{{ ingreso.vehiculo.color|default:"-" }}</td></tr>
-      <tr><th>Año</th><td>{{ ingreso.vehiculo.anio|default:"-" }}</td></tr>
-      <tr><th>N° Chasis</th><td>{{ ingreso.vehiculo.nro_chasis|default:"-" }}</td></tr>
-      <tr><th>N° Motor</th><td>{{ ingreso.vehiculo.nro_motor|default:"-" }}</td></tr>
-    </tbody>
-  </table>
+  <div class="info-grid">
+    <div class="kv"><div class="k">Dominio</div><div class="v">{{ ingreso.vehiculo.dominio }}</div></div>
+    <div class="kv"><div class="k">Marca</div><div class="v">{{ ingreso.vehiculo.marca|default:"-" }}</div></div>
+    <div class="kv"><div class="k">Modelo</div><div class="v">{{ ingreso.vehiculo.modelo|default:"-" }}</div></div>
+    <div class="kv"><div class="k">Color</div><div class="v">{{ ingreso.vehiculo.color|default:"-" }}</div></div>
+    <div class="kv"><div class="k">Año</div><div class="v">{{ ingreso.vehiculo.anio|default:"-" }}</div></div>
+    <div class="kv"><div class="k">N° Chasis</div><div class="v mono">{{ ingreso.vehiculo.nro_chasis|default:"-" }}</div></div>
+    <div class="kv"><div class="k">N° Motor</div><div class="v mono">{{ ingreso.vehiculo.nro_motor|default:"-" }}</div></div>
+  </div>
 
-  <div style="height:16px;"></div>
+  <div class="section-gap"></div>
 
   <!-- INGRESO -->
   <div class="h2">Datos de ingreso al playón</div>
-  <hr class="hr">
+  <div class="info-grid">
+    <div class="kv"><div class="k">Fecha ingreso</div><div class="v">{{ ingreso.fecha_ingreso }}</div></div>
+    <div class="kv"><div class="k">Tipo de vehículo</div><div class="v">{{ ingreso.get_tipo_vehiculo_display|default:"-" }}</div></div>
+    <div class="kv"><div class="k">Lugar infracción</div><div class="v">{{ ingreso.lugar_infraccion|default:"-" }}</div></div>
+    <div class="kv"><div class="k">N° legajo playón</div><div class="v">{{ ingreso.nro_legajo_playon }}</div></div>
+    <div class="kv"><div class="k">Recibido por</div><div class="v">{{ ingreso.recibido_por.username }}</div></div>
 
-  <table class="table">
-    <tbody>
-      <tr><th>Fecha ingreso</th><td>{{ ingreso.fecha_ingreso }}</td></tr>
-      <tr><th>Tipo de vehículo</th><td>{{ ingreso.get_tipo_vehiculo_display|default:"-" }}</td></tr>
-      <tr><th>Lugar de la infracción</th><td>{{ ingreso.lugar_infraccion|default:"-" }}</td></tr>
-      <tr><th>N° legajo playón</th><td>{{ ingreso.nro_legajo_playon }}</td></tr>
-      <tr><th>Recibido por</th><td>{{ ingreso.recibido_por.username }}</td></tr>
+    {% if ingreso.ubicacion_interna %}
+      <div class="kv"><div class="k">Ubicación interna</div><div class="v">{{ ingreso.ubicacion_interna }}</div></div>
+    {% endif %}
 
-      {% if ingreso.ubicacion_interna %}
-        <tr><th>Ubicación interna</th><td>{{ ingreso.ubicacion_interna }}</td></tr>
-      {% endif %}
+    <div class="kv">
+      <div class="k">Lugar en playón (tablero)</div>
+      <div class="v">{% if ingreso.lugar %}<span class="pill" style="display:inline-block;">{{ ingreso.lugar.codigo }}</span>{% else %}-{% endif %}</div>
+    </div>
+  </div>
 
-      <tr>
-        <th>Lugar en playón (tablero)</th>
-        <td>{% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div style="height:16px;"></div>
+  <div class="section-gap"></div>
 
   <!-- DOCS -->
   <div class="h2">Documentación anexada</div>
-  <hr class="hr">
+  <div class="info-grid">
+    <div class="kv"><div class="k">Acta de infracción</div><div class="v">{{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</div></div>
+    <div class="kv"><div class="k">Acta de secuestro</div><div class="v">{{ ingreso.acta_secuestro_recibida|yesno:"Sí,No" }}</div></div>
+    <div class="kv"><div class="k">Inventario visible</div><div class="v">{{ ingreso.inventario_objetos_visibles_recibido|yesno:"Sí,No" }}</div></div>
+    <div class="kv"><div class="k">Registro fotográfico</div><div class="v">{{ ingreso.registro_fotografico_recibido|yesno:"Sí,No" }}</div></div>
+    <div class="kv"><div class="k">Prueba alcoholemia</div><div class="v">{{ ingreso.get_prueba_alcoholemia_estado_display|default:"-" }}</div></div>
+  </div>
 
-  <table class="table">
-    <tbody>
-      <tr><th>Acta de infracción</th><td>{{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Acta de secuestro</th><td>{{ ingreso.acta_secuestro_recibida|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Inventario de objetos visibles</th><td>{{ ingreso.inventario_objetos_visibles_recibido|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Registro fotográfico</th><td>{{ ingreso.registro_fotografico_recibido|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Prueba alcoholemia / test</th><td>{{ ingreso.get_prueba_alcoholemia_estado_display|default:"-" }}</td></tr>
-    </tbody>
-  </table>
-
-  <div style="height:16px;"></div>
+  <div class="section-gap"></div>
 
   <!-- OBS -->
   <div class="h2">Observaciones de ingreso</div>
-  <hr class="hr">
+  <div class="info-grid">
+    <div class="kv"><div class="k">¿Coincide inventario?</div><div class="v">{{ ingreso.coincide_inventario|yesno:"Sí,No" }}</div></div>
+    <div class="kv"><div class="k">¿Coinciden daños?</div><div class="v">{{ ingreso.coinciden_danios_registrados|yesno:"Sí,No" }}</div></div>
 
-  <table class="table">
-    <tbody>
-      <tr><th>¿Coincide inventario?</th><td>{{ ingreso.coincide_inventario|yesno:"Sí,No" }}</td></tr>
-      <tr><th>¿Coinciden daños registrados?</th><td>{{ ingreso.coinciden_danios_registrados|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Detalle daños no coincidentes</th><td>{{ ingreso.detalle_danios_no_coincidentes|default:"-" }}</td></tr>
-      <tr><th>Batería desconectada</th><td>{{ ingreso.bateria_desconectada|yesno:"Sí,No" }}</td></tr>
-      <tr><th>Observaciones generales</th><td>{{ ingreso.observaciones_generales|default:"-" }}</td></tr>
-    </tbody>
-  </table>
+    <div class="kv wide">
+      <div class="k">Detalle daños no coincidentes</div>
+      <div class="v">{{ ingreso.detalle_danios_no_coincidentes|default:"-" }}</div>
+    </div>
 
-  <div style="height:16px;"></div>
+    <div class="kv"><div class="k">Batería desconectada</div><div class="v">{{ ingreso.bateria_desconectada|yesno:"Sí,No" }}</div></div>
+
+    <div class="kv wide">
+      <div class="k">Observaciones generales</div>
+      <div class="v">{{ ingreso.observaciones_generales|default:"-" }}</div>
+    </div>
+  </div>
+
+  <div class="section-gap"></div>
 
   <!-- EGRESO -->
   <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;">
     <div class="h2">Datos de egreso / retiro</div>
     {% if ingreso.retirado %}
-      <span class="pill"><b>Estado:</b> Retirado ✅</span>
+      <span class="pill"><b>Estado:</b> Retirado</span>
     {% else %}
-      <span class="pill"><b>Estado:</b> En playón 📦</span>
+      <span class="pill"><b>Estado:</b> En playón</span>
     {% endif %}
   </div>
-  <hr class="hr">
 
   {% if ingreso.retirado %}
-    <table class="table">
-      <tbody>
-        <tr><th>Fecha de retiro</th><td>{{ ingreso.fecha_retiro|default:"-" }}</td></tr>
-        <tr><th>Entregado por</th><td>{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</td></tr>
-        <tr><th>Nombre de quien retira</th><td>{{ ingreso.nombre_retira|default:"-" }}</td></tr>
-        <tr><th>DNI de quien retira</th><td>{{ ingreso.dni_retira|default:"-" }}</td></tr>
-        <tr><th>Observaciones de egreso</th><td>{{ ingreso.observaciones_egreso|default:"-" }}</td></tr>
-      </tbody>
-    </table>
+    <div class="info-grid">
+      <div class="kv"><div class="k">Fecha de retiro</div><div class="v">{{ ingreso.fecha_retiro|default:"-" }}</div></div>
+      <div class="kv"><div class="k">Entregado por</div><div class="v">{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</div></div>
+      <div class="kv"><div class="k">Nombre retira</div><div class="v">{{ ingreso.nombre_retira|default:"-" }}</div></div>
+      <div class="kv"><div class="k">DNI retira</div><div class="v">{{ ingreso.dni_retira|default:"-" }}</div></div>
+
+      <div class="kv wide">
+        <div class="k">Observaciones de egreso</div>
+        <div class="v">{{ ingreso.observaciones_egreso|default:"-" }}</div>
+      </div>
+    </div>
   {% else %}
-    <div class="muted">Este vehículo aún no fue retirado del playón.</div>
+    <div class="muted" style="margin-top:8px;">Este vehículo aún no fue retirado del playón.</div>
   {% endif %}
 
   {% if auditorias %}
+    <div class="section-gap"></div>
     <div class="card">
       <div class="h2">Auditoría (últimos cambios)</div>
-      <table class="table" style="margin-top:10px;">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>Cambios</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in auditorias %}
+
+      <div style="overflow:auto; margin-top:10px;">
+        <table class="table table-compact">
+          <thead>
             <tr>
-              <td>{{ a.fecha }}</td>
-              <td>{{ a.usuario.username }}</td>
-              <td>{{ a.accion }}</td>
-              <td style="color: var(--text);">
-                <pre style="white-space:pre-wrap; margin:0;">{{ a.cambios }}</pre>
-              </td>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Cambios</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for a in auditorias %}
+              <tr>
+                <td>{{ a.fecha }}</td>
+                <td>{{ a.usuario.username }}</td>
+                <td>{{ a.accion }}</td>
+                <td style="color: var(--text);">
+                  <pre style="white-space:pre-wrap; margin:0; font-size:12px; line-height:1.25;">{{ a.cambios }}</pre>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   {% endif %}
 
