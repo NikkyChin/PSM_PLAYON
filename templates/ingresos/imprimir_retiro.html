@@ -71,9 +71,8 @@
 
   <div class="box">
     <h2>Datos de Ingreso al Playón</h2>
-    <div class="grid" style="width: 595px;">
+    <div class="grid">
       <div class="row"><div class="k">Fecha ingreso</div><div class="v">{{ ingreso.fecha_ingreso }}</div></div>
-      <div></div>
       <div class="row"><div class="k">Lugar en playón</div><div class="v">{% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</div></div>
 
       <div class="row"><div class="k">Recibido por</div><div class="v">{{ ingreso.recibido_por.username }}</div></div>
