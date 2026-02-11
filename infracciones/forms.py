@@ -1,7 +1,7 @@
 from django import forms
 from .models import Infraccion
 
-
+# Formulario para crear o editar un acta de infracción. Se usa en las vistas de creación y edición de actas.
 class InfraccionForm(forms.ModelForm):
     class Meta:
         model = Infraccion

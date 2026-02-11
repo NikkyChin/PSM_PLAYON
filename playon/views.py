@@ -8,9 +8,7 @@ from vehiculos.models import IngresoPlayon, LugarPlayon, MovimientoLugar, Audito
 from vehiculos.forms import EditarVehiculoForm, EditarIngresoPlayonForm
 
 
-
-
-
+# Vistas para el tablero del playón y gestión de lugares
 @login_required
 def tablero_playon(request):
     # lugares ordenados A1..Z15
@@ -23,7 +21,6 @@ def tablero_playon(request):
         .select_related("vehiculo", "lugar")
     )
 
-    # mapa: lugar_id -> ingreso activo
     ocupacion = {ing.lugar_id: ing for ing in ingresos_activos}
 
     # armamos matriz A-Z / 1-15
@@ -43,7 +40,6 @@ def tablero_playon(request):
 
         tablero.append({"fila": f, "celdas": fila_celdas})
 
-    # contadores
     total_lugares = len(lugares)
     lugares_libres = sum(1 for l in lugares if l.estado == "LIBRE")
     lugares_ocupados = sum(1 for l in lugares if l.estado == "OCUPADO")
@@ -64,6 +60,7 @@ def tablero_playon(request):
         },
     )
 
+# Detalle de lugar: muestra ingreso activo (si hay), historial de ingresos y movimientos
 @login_required
 def detalle_lugar(request, lugar_id):
     lugar = get_object_or_404(LugarPlayon, id=lugar_id)
@@ -105,7 +102,7 @@ def detalle_lugar(request, lugar_id):
     )
 
 
-
+# vistas para cambiar estado de lugar (libre <-> fuera)
 @require_POST
 @login_required
 def reactivar_lugar(request, lugar_id):
@@ -126,7 +123,7 @@ def reactivar_lugar(request, lugar_id):
 
 
 
-
+# marcar lugar fuera de servicio (no se puede usar hasta reactivar)
 @require_POST
 @login_required
 def marcar_lugar_fuera(request, lugar_id):

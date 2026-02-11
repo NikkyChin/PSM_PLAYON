@@ -2,7 +2,7 @@ from django import forms
 from .models import IngresoPlayon, LugarPlayon, Vehiculo
 
 
-
+# Formulario para registrar el ingreso de un vehículo al playón. Se usa en la vista de registro de ingresos.
 class IngresoPlayonForm(forms.ModelForm):
     dominio = forms.CharField(label="Dominio (patente)", max_length=10)
     nro_chasis = forms.CharField(label="N° de chasis", max_length=50, required=False)
@@ -55,13 +55,14 @@ class IngresoPlayonForm(forms.ModelForm):
 
         return lugar
 
-
+# Formulario para registrar el egreso de un vehículo del playón. Se usa en la vista de registro de egresos.
 class EgresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
         fields = ("nombre_retira", "dni_retira", "observaciones_egreso")
 
-
+# Formulario para editar los datos de un ingreso al playón, incluyendo detalles del vehículo, lugar de infracción, actas recibidas, estado de la alcoholemia, etc. 
+# Se usa en la vista de edición de ingresos.
 class EditarIngresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
@@ -81,6 +82,8 @@ class EditarIngresoPlayonForm(forms.ModelForm):
             "observaciones_generales",
         )
 
+# Formulario para editar los datos de un vehículo registrado en el playón, como dominio, marca, modelo, color, año, número de chasis y número de motor. 
+# Se usa en la vista de edición de vehículos.
 class EditarVehiculoForm(forms.ModelForm):
     class Meta:
         model = Vehiculo

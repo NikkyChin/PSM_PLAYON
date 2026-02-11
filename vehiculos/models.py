@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone as djtz
 
-
+# Modelo para representar un vehículo registrado en el sistema. Se relaciona con los ingresos al playón.
 class Vehiculo(models.Model):
     dominio = models.CharField("Dominio (Patente)", max_length=10, unique=True)
     marca = models.CharField(max_length=50, blank=False)
@@ -23,6 +23,7 @@ class Vehiculo(models.Model):
     def reincidencias_alcoholemia(self):
         return self.ingresos.filter(prueba_alcoholemia_estado="SI").count()
 
+# Modelo para representar los lugares del playón, con su estado (libre, ocupado, fuera de servicio) y tipo (general o exclusivo para motos).
 class LugarPlayon(models.Model):
     ESTADO_CHOICES = [
         ("LIBRE", "Libre"),
@@ -51,7 +52,8 @@ class LugarPlayon(models.Model):
     def __str__(self):
         return self.codigo
 
-
+# Modelo para representar el ingreso de un vehículo al playón, con sus datos, documentación recibida, ubicación, y datos de egreso (retiro). 
+# Se relaciona con el vehículo y el lugar del playón.
 class IngresoPlayon(models.Model):
     TIPO_VEHICULO_CHOICES = [
         ("AUTO", "Auto"),
@@ -145,7 +147,9 @@ class IngresoPlayon(models.Model):
         return (fin - inicio).days + 1
 
 
-
+# Modelo para registrar los movimientos de un vehículo dentro del playón, como cambios de lugar. 
+# Se relaciona con el ingreso al playón, el lugar anterior y el nuevo lugar, el usuario que realizó el movimiento, la fecha y el motivo.
+# Actualmente no se usa en ningún formulario ni vista, pero queda preparado para cuando quieras implementar la funcionalidad de mover vehículos dentro del playón.
 class MovimientoLugar(models.Model):
     ingreso = models.ForeignKey(IngresoPlayon, on_delete=models.CASCADE, related_name="movimientos")
     lugar_anterior = models.ForeignKey(LugarPlayon, on_delete=models.PROTECT, null=True, blank=True, related_name="+")
@@ -160,12 +164,15 @@ class MovimientoLugar(models.Model):
     def __str__(self):
         return f"{self.ingreso.nro_legajo_playon}: {self.lugar_anterior} -> {self.lugar_nuevo}"
 
+# Modelo para auditar los cambios realizados en los ingresos al playón.
+# Cada vez que se edite un ingreso, se puede crear una instancia de AuditoriaIngreso con los datos del ingreso antes de la edición, 
+# el usuario que hizo el cambio, la fecha y los cambios realizados (en formato JSON).
 class AuditoriaIngreso(models.Model):
     ingreso = models.ForeignKey("IngresoPlayon", on_delete=models.CASCADE, related_name="auditorias")
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     fecha = models.DateTimeField(auto_now_add=True)
 
-    accion = models.CharField(max_length=30, default="EDICION")  # por si mañana sumás otras acciones
+    accion = models.CharField(max_length=30, default="EDICION")  # por si en el futuro se agregan otras acciones
     cambios = models.JSONField(default=dict, blank=True)  # Django 6 + Postgres/SQLite ok
 
     class Meta:

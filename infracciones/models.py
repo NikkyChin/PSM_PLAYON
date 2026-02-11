@@ -1,10 +1,8 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
 
-
+# Modelos para actas de infracción y auditoría de cambios en las actas. 
+# El modelo Infraccion representa un acta de infracción, con datos del infractor, vehículo, descripción de la infracción, etc. 
 class Infraccion(models.Model):
     # Quién cargó (inspector)
     inspector = models.ForeignKey(
@@ -46,7 +44,7 @@ class Infraccion(models.Model):
     def __str__(self):
         return f"Acta {self.nro_acta} - {self.dominio}"
 
-
+# El modelo AuditoriaInfraccion registra los cambios realizados a un acta, con el usuario que hizo el cambio, la fecha y un texto con los cambios realizados.
 class AuditoriaInfraccion(models.Model):
     infraccion = models.ForeignKey(
         "Infraccion",

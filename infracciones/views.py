@@ -6,6 +6,8 @@ from .models import Infraccion, AuditoriaInfraccion
 from .forms import InfraccionForm
 from .permissions import es_inspector, es_admin_sistema
 
+# Auditoría de cambios: función para comparar un objeto original con los datos de un formulario, y generar un texto con los cambios realizados, 
+# solo para los campos que cambiaron. Se usa para registrar auditorías de edición de actas de infracción.
 def _diff_to_text(original_obj, form):
     """
     Devuelve un string con cambios tipo:
@@ -27,6 +29,7 @@ def _diff_to_text(original_obj, form):
 
     return "\n".join(lineas)
 
+# Lista de actas de infracción, con búsqueda por número de acta, DNI del infractor, dominio del vehículo o nombre del inspector.
 @login_required
 def lista_actas(request):
     if not es_inspector(request.user):
@@ -52,7 +55,9 @@ def lista_actas(request):
 
     return render(request, "infracciones/lista_actas.html", {"actas": actas, "q": q})
 
-
+# Crear una nueva acta de infracción, con formulario para cargar datos del acta, y asignar automáticamente el inspector que la crea. 
+# Solo pueden crear actas los usuarios con rol de inspector.
+# Revisar si esto funciona bien, porque el form no tiene el campo inspector, y se asigna en la vista antes de guardar. Si el form no es válido, se pierde el inspector asignado.
 @login_required
 def nueva_acta(request):
     if not es_inspector(request.user):
@@ -70,7 +75,7 @@ def nueva_acta(request):
 
     return render(request, "infracciones/acta_form.html", {"form": form, "modo": "nueva"})
 
-
+# Detalle de un acta de infracción, con su auditoría de cambios. Solo pueden ver el detalle los inspectores que la crearon, o los admins del sistema.
 @login_required
 def detalle_acta(request, acta_id):
     if not es_inspector(request.user):
@@ -85,7 +90,8 @@ def detalle_acta(request, acta_id):
 
     return render(request, "infracciones/detalle_acta.html", {"acta": acta, "auditorias": auditorias})
 
-
+# Editar un acta de infracción, con formulario para modificar datos del acta, y generar auditoría de cambios. 
+# Solo pueden editar los inspectores que la crearon, o los admins del sistema.
 @login_required
 def editar_acta(request, acta_id):
     if not es_inspector(request.user):

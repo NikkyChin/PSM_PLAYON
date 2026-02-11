@@ -3,7 +3,7 @@ from django.shortcuts import render,  get_object_or_404
 from .models import Vehiculo, IngresoPlayon
 from django.db.models import Q
 
-
+# Lista de vehículos con búsqueda
 @login_required
 def lista_vehiculos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -23,6 +23,7 @@ def lista_vehiculos(request):
 
     return render(request, "vehiculos/lista.html", {"vehiculos": vehiculos, "q": q})
 
+# Lista de ingresos al playón con búsqueda
 @login_required
 def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -50,7 +51,7 @@ def lista_ingresos(request):
         "q": q,
     })
 
-
+# Muestra detalle de un vehículo, con su historial de ingresos al playón
 @login_required
 def detalle_vehiculo(request, vehiculo_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -72,6 +73,3 @@ def detalle_vehiculo(request, vehiculo_id):
         "vehiculos/detalle_vehiculo.html",
         {"vehiculo": vehiculo, "ingresos": ingresos},
     )
-
-
-

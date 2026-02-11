@@ -10,6 +10,7 @@ from vehiculos.forms import IngresoPlayonForm
 from vehiculos.models import IngresoPlayon, MovimientoLugar, AuditoriaIngreso
 from vehiculos.models import Vehiculo
 
+# Auditoría: función para comparar un objeto original con los datos de un form y detectar cambios
 def _diff_instance_form(original_obj, form):
     """
     Devuelve dict {campo: {"antes": x, "despues": y}} solo para fields que cambiaron.
@@ -29,6 +30,7 @@ def _diff_instance_form(original_obj, form):
         cambios[field] = {"antes": antes, "despues": despues}
     return cambios
 
+# Vistas para gestión de ingresos y egresos al playón, y su auditoría
 def _qs_ingresos_base():
     return (
         IngresoPlayon.objects
@@ -44,7 +46,7 @@ def _qs_ingresos_base():
         .order_by("-fecha_ingreso")
     )
     
-
+# Lista de ingresos al playón con búsqueda
 @login_required
 def nuevo_ingreso_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -92,12 +94,10 @@ def nuevo_ingreso_playon(request):
             ingreso.recibido_por = request.user
             ingreso.save()
 
-            # marcar lugar como ocupado
             if ingreso.lugar:
                 ingreso.lugar.estado = "OCUPADO"
                 ingreso.lugar.save()
 
-                # registrar movimiento
                 MovimientoLugar.objects.create(
                     ingreso=ingreso,
                     lugar_anterior=None,
@@ -114,6 +114,7 @@ def nuevo_ingreso_playon(request):
 
     return render(request, "ingresos/ingreso_form.html", {"form": form})
 
+# Resgistra el egreso de un vehículo del playón, con formulario para cargar datos de retiro y generar auditoría de cambios.
 @login_required
 def registrar_egreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -156,7 +157,8 @@ def registrar_egreso(request, ingreso_id):
 
     return render(request, "ingresos/egreso_form.html", {"form": form, "ingreso": ingreso})
 
-
+# Imprime el comprobante de retiro del playón, con datos del ingreso y egreso, para entregar 
+# al usuario que retira el vehículo. Solo se puede imprimir si el ingreso ya fue retirado, para evitar confusiones.
 @login_required
 def imprimir_retiro(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -174,7 +176,7 @@ def imprimir_retiro(request, ingreso_id):
 
     return render(request, "ingresos/imprimir_retiro.html", {"ingreso": ingreso})
 
-
+# Detalle de un ingreso al playón, con su auditoría de cambios
 @login_required
 def detalle_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -187,7 +189,7 @@ def detalle_ingreso(request, ingreso_id):
 
     return render(request, "ingresos/detalle_ingreso.html", {"ingreso": ingreso, "auditorias": auditorias})
 
-
+# Lista de ingresos al playón con búsqueda
 @login_required
 def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -211,7 +213,7 @@ def lista_ingresos(request):
     })
 
     
-
+# Lista de ingresos actualmente en el playón (no retirados) con búsqueda
 @login_required
 def ingresos_en_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -234,6 +236,7 @@ def ingresos_en_playon(request):
         "q": q,
     })
 
+# Lista de ingresos retirados del playón con búsqueda
 @login_required
 def retiros_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -256,9 +259,7 @@ def retiros_playon(request):
         "q": q,
     })
 
-
-
-
+# Editar un ingreso al playón, con formulario para modificar datos del ingreso y del vehículo, y generar auditoría de cambios.
 @login_required
 def editar_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
