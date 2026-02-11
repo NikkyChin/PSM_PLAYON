@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.core.management import call_command
 import string
 from django.db.models import Q
 from .models import LugarPlayon, IngresoPlayon, MovimientoLugar
@@ -55,6 +56,7 @@ def tablero_playon(request):
             "lugares_ocupados": lugares_ocupados,
             "lugares_fuera": lugares_fuera,
             "ocupacion_pct": ocupacion_pct,
+            "es_admin_sistema": es_admin_sistema(request.user),
         },
     )
 
@@ -167,3 +169,22 @@ def lista_ingresos(request):
         "titulo": "Ingresos al Playón",
         "q": q,
     })
+
+# Solo admins pueden ejecutar esta vista que repara el tablero (crea lugares faltantes y recalcula estados)
+def es_admin_sistema(user) -> bool:
+    if not user.is_authenticated:
+        return False
+    grupos = set(user.groups.values_list("name", flat=True))
+    return ("ADMIN_SISTEMA" in grupos) or user.is_superuser
+
+
+@login_required
+def reparar_tablero(request):
+    if not es_admin_sistema(request.user):
+        return render(request, "cuentas/no_permiso.html")
+
+    # corre el command
+    call_command("seed_playon")
+
+    # volvemos al tablero
+    return redirect("tablero_playon")

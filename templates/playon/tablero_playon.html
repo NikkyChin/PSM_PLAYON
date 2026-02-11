@@ -13,6 +13,11 @@
       <span class="pill"><b>Ocupados:</b> {{ lugares_ocupados }}</span>
       <span class="pill"><b>Fuera:</b> {{ lugares_fuera }}</span>
       <span class="pill"><b>Ocupación:</b> {{ ocupacion_pct }}%</span>
+      {% if es_admin_sistema %}
+        <a class="btn btn--ghost" href="{% url 'reparar_tablero' %}">
+          Reparar tablero
+        </a>
+      {% endif %}
     </div>
   </div>
 

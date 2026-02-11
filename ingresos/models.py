@@ -45,7 +45,7 @@ class IngresoPlayon(models.Model):
     detalle_danios_no_coincidentes = models.TextField("Detalle de daños no coincidentes", blank=True)
     bateria_desconectada = models.BooleanField("Batería desconectada", default=False)
 
-    ubicacion_interna = models.CharField("Ubicación interna en playa", max_length=100, blank=False)
+    ubicacion_interna = models.CharField("Ubicación interna en playón", max_length=100, blank=False)
     lugar = models.ForeignKey(
         "playon.LugarPlayon",
         on_delete=models.PROTECT,
