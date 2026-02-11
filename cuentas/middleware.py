@@ -1,11 +1,9 @@
 from django.shortcuts import render
 from django.urls import resolve
 
+# Meddleware que verifica que el usuario autenticado tenga al menos un rol (grupo) asignado.
 class UsuarioConRolMiddleware:
-    """
-    Verifica que el usuario autenticado tenga al menos un grupo asignado.
-    """
-
+    # Se pueden configurar rutas excluidas, como las de login/logout, para que no se aplique esta verificación en esas rutas.
     EXCLUIDAS = [
         "login",
         "logout",
