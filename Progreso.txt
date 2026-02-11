@@ -77,11 +77,6 @@ La **v1.0 interna** se considera **entregada y funcional** como primera etapa de
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-Dale. Te dejo un **cierre formal** estilo “release notes + acta interna”, simple y usable para pegar en un doc o mandar por mail.
-
----
-
 # Cierre formal — PSM Playón v1.1 (uso interno)
 
 ## 1) Objetivo de la versión
@@ -143,3 +138,132 @@ Login → Alta ingreso → Asignación lugar → Seguimiento → Retiro → Acta
 * Definición del flujo con Juzgado y estados administrativos.
 * Revisión de modelo de datos definitivo + migraciones limpias.
 * Preparación para despliegue municipal (servidor, red interna, usuarios, backups, seguridad).
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# CIERRE FORMAL — VERSIÓN 1.2 INTERNA
+
+**Sistema PSM – Playón Municipal**
+
+Fecha: 11/02/2026
+
+---
+
+## 🔹 Alcance implementado en v1.2
+
+### Módulo Playón
+
+* Registro de ingresos de vehículos.
+* Asignación de lugar en tablero.
+* Control de estados: Libre / Ocupado / Fuera de servicio.
+* Registro de egresos.
+* Cálculo automático de días en el playón (incluyendo día de ingreso).
+* Control de reincidencias por vehículo.
+* Auditoría de ediciones de ingresos.
+* Recreación y gestión estructurada del tablero (A–Z / 1–15).
+
+---
+
+### Módulo Infracciones (Inspector)
+
+* Registro de actas por inspector.
+* Edición de actas propias.
+* Visualización exclusiva de actas propias.
+* Auditoría de modificaciones.
+* Grupo ADMIN_SISTEMA con acceso total a todas las actas.
+* Separación clara de permisos por rol.
+* Integración funcional con navegación del sistema.
+* Ocultamiento de módulos no correspondientes según rol.
+
+---
+
+### Gestión de Usuarios y Seguridad
+
+* Sistema de grupos:
+
+  * INSPECTOR
+  * ENCARGADO_PLAYON
+  * JUEZ
+  * ADMIN_SISTEMA
+* Control de acceso por rol.
+* Cambio de contraseña para usuarios logueados.
+* Recuperación administrativa vía Django Admin.
+* Protección de vistas sensibles.
+
+---
+
+## Mejoras técnicas realizadas
+
+* Separación definitiva por apps:
+
+  * `vehiculos`
+  * `playon`
+  * `ingresos`
+  * `infracciones`
+* Reorganización de models, forms, admin y views.
+* Corrección de relaciones cruzadas.
+* Eliminación de duplicaciones de modelos.
+* Limpieza estructural de migraciones.
+* Sistema de generación masiva de tablero.
+* Optimización visual de vistas de detalle.
+
+---
+
+## Estado actual del sistema
+
+✔ Funcional en entorno interno
+✔ Operativo para uso real
+✔ Roles activos
+✔ Auditoría básica implementada
+✔ Tablero estable
+
+---
+
+## Pendiente para futuras versiones (v1.3+)
+
+* Mejoras visuales UI/UX.
+* Modulo de Juez
+* Backup automático del tablero.
+* Exportaciones (PDF / Excel).
+* Métricas y estadísticas.
+* Sistema más robusto de seguridad.
+
+---
+
+## Estado final v1.2
+
+La versión 1.2 interna consolida:
+
+* Estabilidad estructural.
+* Separación modular correcta.
+* Control de permisos real.
+* Auditoría funcional.
+* Operatividad práctica para inspectores y playón.
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Se realizo las mudanzas de las responsabilidades a cada app correspondientes, se agregaron utilidades al sistema, se creo y termino el modulo de inspectores. 
+se realizaron pruebas de funcionamiento.
+
+from playon.models import LugarPlayon
+from ingresos.models import IngresoPlayon
+
+filas = [chr(c) for c in range(ord("A"), ord("F") + 1)]
+cols = list(range(11, 16))
+
+qs = LugarPlayon.objects.filter(fila__in=filas, columna__in=cols)
+
+ocupados_ids = set(
+    IngresoPlayon.objects.filter(retirado=False, lugar__in=qs)
+    .values_list("lugar_id", flat=True)
+)
+
+# marcamos FUERA solo los que NO están ocupados
+to_disable = qs.exclude(id__in=ocupados_ids)
+
+print("Total candidatos:", qs.count())
+print("Ocupados activos (no se tocan):", len(ocupados_ids))
+print("A marcar FUERA:", to_disable.count())
+
+to_disable.update(estado="FUERA")
