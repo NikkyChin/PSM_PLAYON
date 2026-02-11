@@ -23,34 +23,6 @@ def lista_vehiculos(request):
 
     return render(request, "vehiculos/lista.html", {"vehiculos": vehiculos, "q": q})
 
-# Lista de ingresos al playón con búsqueda
-@login_required
-def lista_ingresos(request):
-    grupos = set(request.user.groups.values_list("name", flat=True))
-
-    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
-
-    q = (request.GET.get("q") or "").strip()
-
-    ingresos = (
-        IngresoPlayon.objects
-        .select_related("vehiculo", "recibido_por", "entregado_por")
-        .order_by("-fecha_ingreso")
-    )
-
-    if q:
-        ingresos = ingresos.filter(
-            Q(nro_legajo_playon__icontains=q) |
-            Q(vehiculo__dominio__icontains=q)
-        )
-
-    return render(request, "vehiculos/lista_ingresos.html", {
-        "ingresos": ingresos,
-        "titulo": "Ingresos al Playón",
-        "q": q,
-    })
-
 # Muestra detalle de un vehículo, con su historial de ingresos al playón
 @login_required
 def detalle_vehiculo(request, vehiculo_id):

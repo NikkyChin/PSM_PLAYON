@@ -4,8 +4,9 @@ from django.views.decorators.http import require_POST
 import string
 from django.db.models import Q
 from django.db import transaction
+from ingresos.forms import EditarIngresoPlayonForm
 from vehiculos.models import IngresoPlayon, LugarPlayon, MovimientoLugar, AuditoriaIngreso, Vehiculo
-from vehiculos.forms import EditarVehiculoForm, EditarIngresoPlayonForm
+from vehiculos.forms import EditarVehiculoForm
 
 
 # Vistas para el tablero del playón y gestión de lugares
@@ -141,3 +142,31 @@ def marcar_lugar_fuera(request, lugar_id):
     lugar.estado = "FUERA"
     lugar.save()
     return redirect("detalle_lugar", lugar_id=lugar.id)
+
+# Lista de ingresos al playón con búsqueda
+@login_required
+def lista_ingresos(request):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "cuentas/no_permiso.html")
+
+    q = (request.GET.get("q") or "").strip()
+
+    ingresos = (
+        IngresoPlayon.objects
+        .select_related("vehiculo", "recibido_por", "entregado_por")
+        .order_by("-fecha_ingreso")
+    )
+
+    if q:
+        ingresos = ingresos.filter(
+            Q(nro_legajo_playon__icontains=q) |
+            Q(vehiculo__dominio__icontains=q)
+        )
+
+    return render(request, "ingresos/lista_ingresos.html", {
+        "ingresos": ingresos,
+        "titulo": "Ingresos al Playón",
+        "q": q,
+    })
