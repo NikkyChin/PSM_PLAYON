@@ -3,11 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import string
 from django.db.models import Q
-from django.db import transaction
-from ingresos.forms import EditarIngresoPlayonForm
-from vehiculos.models import IngresoPlayon, LugarPlayon, MovimientoLugar, AuditoriaIngreso, Vehiculo
-from vehiculos.forms import EditarVehiculoForm
-
+from .models import LugarPlayon, IngresoPlayon, MovimientoLugar
+from ingresos.models import IngresoPlayon
 
 # Vistas para el tablero del playón y gestión de lugares
 @login_required

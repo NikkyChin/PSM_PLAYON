@@ -1,13 +1,15 @@
 from django.shortcuts import render
-from vehiculos.forms import EditarVehiculoForm
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
+from django.db import transaction
+from django.db.models import Q, Count
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.http import HttpResponseForbidden
-from django.db.models import Q, Count
-from django.db import transaction
+from vehiculos.forms import EditarVehiculoForm
 from ingresos.forms import IngresoPlayonForm, EgresoPlayonForm, EditarIngresoPlayonForm
-from vehiculos.models import IngresoPlayon, MovimientoLugar, AuditoriaIngreso, Vehiculo
+from vehiculos.models import Vehiculo
+from playon.models import MovimientoLugar
+from ingresos.models import IngresoPlayon, AuditoriaIngreso
 
 
 # Auditoría: función para comparar un objeto original con los datos de un form y detectar cambios

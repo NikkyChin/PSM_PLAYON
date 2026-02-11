@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,  get_object_or_404
-from .models import Vehiculo, IngresoPlayon
+from .models import Vehiculo
 from django.db.models import Q
 
 # Lista de vehículos con búsqueda

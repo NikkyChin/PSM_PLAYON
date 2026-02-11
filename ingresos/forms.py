@@ -1,5 +1,6 @@
 from django import forms
-from vehiculos.models import IngresoPlayon, LugarPlayon
+from .models import IngresoPlayon
+from playon.models import LugarPlayon
 
 # Formulario para registrar el ingreso de un vehículo al playón. Se usa en la vista de registro de ingresos.
 class IngresoPlayonForm(forms.ModelForm):
