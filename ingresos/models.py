@@ -85,10 +85,10 @@ class IngresoPlayon(models.Model):
         fin = djtz.localtime(fin_dt).date()
         return (fin - inicio).days + 1
 
-
+# Modelo para auditoría de cambios en IngresoPlayon. Cada vez que se edite un ingreso, se puede crear una instancia de este modelo con los cambios realizados.
 class AuditoriaIngreso(models.Model):
-    ingreso = models.ForeignKey("ingresos.IngresoPlayon", on_delete=models.CASCADE, related_name="auditorias_ingresos")
-    usuario = models.ForeignKey(User, on_delete=models.PROTECT, related_name="auditorias_ingresos")
+    ingreso = models.ForeignKey("ingresos.IngresoPlayon", on_delete=models.CASCADE, related_name="auditorias",)
+    usuario = models.ForeignKey(User,on_delete=models.PROTECT,related_name="auditorias_ingresos",)  # este sí está bien que sea único)
     fecha = models.DateTimeField(auto_now_add=True)
 
     accion = models.CharField(max_length=30, default="EDICION")

@@ -52,7 +52,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
-    'cuentas.middleware.UsuarioConRolMiddleware'
+    'cuentas.middleware.UsuarioConRolMiddleware', 
+    'cuentas.middleware.IdleTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'PSM_PLAYON.urls'
@@ -92,6 +93,13 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
 
+# 20 minutos de inactividad (ajustá a gusto)
+SESSION_IDLE_TIMEOUT_SECONDS = 20 * 60
+
+# Seguridad recomendable. Se utiliza para evitar ataques de secuestro de sesión (session hijacking) y ataques CSRF.
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+# SESSION_COOKIE_SECURE = True  # solo si estás en https
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

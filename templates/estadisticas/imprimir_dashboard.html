@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte Estadístico - Playón</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; color:#111; }
+    .header { display:flex; gap:14px; align-items:center; border-bottom:2px solid #111; padding-bottom:10px; }
+    .logo { width:80px; height:auto; }
+    h1 { margin:0; font-size:18px; }
+    .sub { margin:4px 0 0; font-size:12px; color:#444; }
+
+    .grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin:16px 0; }
+    .box { border:1px solid #ccc; border-radius:10px; padding:10px 12px; }
+    .box h2 { margin:0 0 6px; font-size:12px; color:#333; font-weight:700; }
+    .big { font-size:20px; font-weight:900; }
+
+    .charts { display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:10px; }
+    .chart-box { border:1px solid #ccc; border-radius:10px; padding:12px; }
+    .chart-title { margin:0 0 10px; font-size:13px; color:#333; font-weight:700; }
+
+    .chart-img { width:100%; height:auto; display:block; }
+    .hide { display:none !important; }
+
+    .no-print { margin-top:14px; display:flex; gap:10px; }
+    button { padding:10px 12px; border-radius:10px; border:1px solid #333; background:#f2f2f2; cursor:pointer; }
+    button:hover { background:#e8e8e8; }
+
+    @media print {
+      .no-print { display:none; }
+      @page { margin: 18mm; }
+    }
+  </style>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="header">
+    <img class="logo" src="{% static 'img/logo_muni.png' %}" alt="Logo municipal">
+    <div>
+      <h1>Playón de Secuestro Municipal — Reporte</h1>
+      <div class="sub">Generado: {% now "d/m/Y H:i" %}</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="box"><h2>Total ingresos</h2><div class="big">{{ total }}</div></div>
+    <div class="box"><h2>En playón</h2><div class="big">{{ en_playon }}</div></div>
+    <div class="box"><h2>Retirados</h2><div class="big">{{ retirados }}</div></div>
+    <div class="box"><h2>Alcoholemia (SI)</h2><div class="big">{{ alco_si }}</div></div>
+  </div>
+
+  <div class="charts">
+
+    <!-- GRÁFICO: ESTADO -->
+    <div class="chart-box">
+      <div class="chart-title">Estado de ingresos (en playón vs retirados)</div>
+
+      <canvas id="chartEstado" height="160"></canvas>
+      <img id="chartEstadoImg" class="chart-img hide" alt="Gráfico estado">
+    </div>
+
+    <!-- GRÁFICO: ALCOHOLEMIA -->
+    <div class="chart-box">
+      <div class="chart-title">Prueba de alcoholemia</div>
+
+      <canvas id="chartAlco" height="160"></canvas>
+      <img id="chartAlcoImg" class="chart-img hide" alt="Gráfico alcoholemia">
+    </div>
+
+  </div>
+
+  <!--
+  ==========================================
+  COMENTADOS POR AHORA (NO USAR)
+  ==========================================
+
+  - Tipo de vehículo (bar)
+  - Top motivos (según acta)
+  ==========================================
+  -->
+
+  <div class="no-print">
+    <button onclick="window.print()">Imprimir</button>
+    <button onclick="history.back()">Volver</button>
+  </div>
+
+  <script>
+    // Helpers: porcentaje + leyenda con valores
+    function makePieLegendWithValues(chart) {
+      const data = chart.data.datasets[0].data;
+      const labels = chart.data.labels;
+
+      const total = data.reduce((a,b) => a + b, 0) || 1;
+
+      return {
+        position: 'bottom',
+        labels: {
+          boxWidth: 12,
+          generateLabels: function(c) {
+            const dataset = c.data.datasets[0];
+            const vals = dataset.data;
+
+            return c.data.labels.map((label, i) => {
+              const v = vals[i] ?? 0;
+              const pct = Math.round((v * 100 / total) * 10) / 10; // 1 decimal
+              const meta = c.getDatasetMeta(0);
+              const style = meta.controller.getStyle(i);
+
+              return {
+                text: `${label}: ${v} (${pct}%)`,
+                fillStyle: style.backgroundColor,
+                strokeStyle: style.borderColor,
+                lineWidth: style.borderWidth,
+                hidden: !c.getDataVisibility(i),
+                index: i
+              };
+            });
+          }
+        }
+      };
+    }
+
+    function exportCanvasToImg(chart, canvasId, imgId) {
+      const canvas = document.getElementById(canvasId);
+      const img = document.getElementById(imgId);
+
+      // dejarle un respiro al render
+      setTimeout(() => {
+        img.src = chart.toBase64Image();
+        img.classList.remove("hide");
+        canvas.classList.add("hide");
+      }, 150);
+    }
+
+    // =======================
+    // Datos desde Django
+    // =======================
+    const estadoData = {
+      labels: ["En playón", "Retirados"],
+      values: [Number("{{ en_playon|default:0 }}"), Number("{{ retirados|default:0 }}")]
+    };
+
+    const alcoData = {
+      labels: ["SI", "NO", "NC"],
+      values: [
+        Number("{{ alco_si|default:0 }}"),
+        Number("{{ alco_no|default:0 }}"),
+        Number("{{ alco_nc|default:0 }}")
+      ]
+    };
+
+    // =======================
+    // Chart: Estado
+    // =======================
+    const ctxEstado = document.getElementById("chartEstado").getContext("2d");
+    const chartEstado = new Chart(ctxEstado, {
+      type: "pie",
+      data: {
+        labels: estadoData.labels,
+        datasets: [{
+          data: estadoData.values,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        plugins: {
+          legend: makePieLegendWithValues(this)
+        }
+      }
+    });
+
+    // Nota: Chart.js no deja usar "this" así. Ajuste correcto:
+    chartEstado.options.plugins.legend = makePieLegendWithValues(chartEstado);
+    chartEstado.update();
+
+    // =======================
+    // Chart: Alcoholemia
+    // =======================
+    const ctxAlco = document.getElementById("chartAlco").getContext("2d");
+    const chartAlco = new Chart(ctxAlco, {
+      type: "pie",
+      data: {
+        labels: alcoData.labels,
+        datasets: [{
+          data: alcoData.values,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        plugins: {
+          legend: makePieLegendWithValues(this)
+        }
+      }
+    });
+
+    chartAlco.options.plugins.legend = makePieLegendWithValues(chartAlco);
+    chartAlco.update();
+
+    // Export a imagen para que imprima SIEMPRE
+    exportCanvasToImg(chartEstado, "chartEstado", "chartEstadoImg");
+    exportCanvasToImg(chartAlco, "chartAlco", "chartAlcoImg");
+
+    window.addEventListener("beforeprint", () => {
+      exportCanvasToImg(chartEstado, "chartEstado", "chartEstadoImg");
+      exportCanvasToImg(chartAlco, "chartAlco", "chartAlcoImg");
+    });
+  </script>
+
+</body>
+</html>

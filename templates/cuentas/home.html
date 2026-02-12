@@ -68,19 +68,12 @@
           <div class="action__title">Vehículos registrados</div>
           <div class="action__desc">Búsqueda por dominio, modelo, etc.</div>
         </a>
-
-        <!-- {% if es_admin_sistema %}
-          <a class="action" href="/admin/">
-            <div class="action__icon">🛠️</div>
-            <div class="action__title">Admin Django</div>
-            <div class="action__desc">Usuarios, modelos y auditoría.</div>
-          </a>
-        {% endif %} -->
       </div>
     </div>
   {% endif %}
 
-  {% if es_admin_sistema or es_inspector %}
+<!--
+   {% if es_admin_sistema or es_inspector %}
     <div class="card">
       {% if es_admin_sistema %}
         <div class="h2">Módulo Inspector de Tránsito</div>
@@ -139,4 +132,19 @@
       </div>
     </div>
   {% endif %}
+
+  {% if es_admin_sistema %}
+    <div class="card">
+      <div class="h2">Módulo Dashboard de Estadísticas</div>
+      <div class="grid-actions">
+        <a class="action" href="{% url 'dashboard_admin' %}">
+          <div class="action__icon">📈</div>
+          <div class="action__title">Dashboard</div>
+          <div class="action__desc">Estadísticas generales del sistema.</div>
+        </a>
+      </div>
+    </div>
+  {% endif %}
+-->
+  
 {% endblock %}
