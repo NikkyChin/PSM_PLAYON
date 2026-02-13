@@ -53,9 +53,9 @@ class IngresoPlayon(models.Model):
         blank=True,
         related_name="ingresos",
     )
-    operador_grua = models.TextField("Operador de grúa y detalles del traslado", blank=False, default="-")
+    operador_grua = models.TextField("Operador de grúa y detalles del traslado", blank=False, default="")
     recibido_por = models.ForeignKey(User, on_delete=models.PROTECT, related_name="ingresos_recibidos")
-    observaciones_generales = models.TextField("Observaciones generales", blank=True, default="-")
+    observaciones_generales = models.TextField("Observaciones generales", blank=True, default="")
 
     retirado = models.BooleanField("¿Retirado?", default=False)
     fecha_retiro = models.DateTimeField("Fecha de retiro", null=True, blank=True)

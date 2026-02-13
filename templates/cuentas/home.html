@@ -72,7 +72,7 @@
     </div>
   {% endif %}
 
-<!--
+
    {% if es_admin_sistema or es_inspector %}
     <div class="card">
       {% if es_admin_sistema %}
@@ -90,6 +90,11 @@
             <div class="action__title">Historial de infracciones</div>
             <div class="action__desc">Ver historial de todas las infracciones.</div>
           </a>
+          <a class="action" href="{% url 'infracciones:infractores' %}">
+            <div class="action__icon">👤</div>
+            <div class="action__title">Lista de infractores</div>
+            <div class="action__desc">Ranking de infractores por DNI.</div>
+          </a>
         </div>
       {% else %}
         <div class="h2">Módulo Inspector de Tránsito</div>
@@ -106,6 +111,7 @@
             <div class="action__title">Mis infracciones</div>
             <div class="action__desc">Ver historial propio.</div>
           </a>
+
         </div>
       {% endif %}
     </div>
@@ -145,6 +151,6 @@
       </div>
     </div>
   {% endif %}
--->
+
   
 {% endblock %}

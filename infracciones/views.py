@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Infraccion, AuditoriaInfraccion
 from .forms import InfraccionForm
 from .permissions import es_inspector, es_admin_sistema
@@ -125,3 +125,41 @@ def editar_acta(request, acta_id):
         form = InfraccionForm(instance=acta)
 
     return render(request, "infracciones/acta_form.html", {"form": form, "modo": "editar", "acta": acta})
+
+@login_required
+def lista_infractores(request):
+    if not es_inspector(request.user):
+        return render(request, "cuentas/no_permisos.html")
+
+    q = (request.GET.get("q") or "").strip()
+
+    qs = Infraccion.objects.all()
+
+    # Si NO es admin, solo actas propias (mis infractores)
+    if not es_admin_sistema(request.user):
+        qs = qs.filter(inspector=request.user)
+
+    if q:
+        qs = qs.filter(
+            Q(dni_infractor__icontains=q) |
+            Q(nombre_infractor__icontains=q) |
+            Q(apellido_infractor__icontains=q)
+        )
+
+    infractores = (
+        qs.values("dni_infractor", "nombre_infractor", "apellido_infractor")
+        .annotate(
+            reincidencias_playon=Count("id", filter=Q(retenido_playon=True)),
+            alcoholemia_playon=Count(
+                "id",
+                filter=Q(retenido_playon=True, prueba_alcoholemia_estado="SI")
+            ),
+            total_actas=Count("id"),
+        )
+        .order_by("-reincidencias_playon", "-alcoholemia_playon", "apellido_infractor", "nombre_infractor")
+    )
+
+    return render(request, "infracciones/lista_infractores.html", {
+        "infractores": infractores,
+        "q": q,
+    })

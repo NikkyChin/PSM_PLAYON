@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Infractores{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="h1">Infractores</div>
+    <p class="muted">Se agrupa por DNI. Contadores basados en actas marcadas como “Retenido para playón”.</p>
+
+    <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+      <input type="text" name="q" placeholder="Buscar por DNI o nombre..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
+      <button class="btn btn--ghost" type="submit">Buscar</button>
+      {% if q %}
+        <a class="btn btn--ghost" href="{% url 'infracciones:infractores' %}">Limpiar</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="card">
+    {% if infractores %}
+      <div style="overflow:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>Nombre</th>
+              <th>Reincidencias (Playón)</th>
+              <th>Alcoholemia (Playón)</th>
+              <th>Total actas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in infractores %}
+              <tr>
+                <td style="color:var(--text); font-weight:900;">{{ p.dni_infractor }}</td>
+                <td>{{ p.apellido_infractor }}, {{ p.nombre_infractor }}</td>
+                <td>{{ p.reincidencias_playon }}</td>
+                <td>{{ p.alcoholemia_playon }}</td>
+                <td class="muted">{{ p.total_actas }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">No hay infractores para mostrar.</p>
+    {% endif %}
+  </div>
+{% endblock %}
