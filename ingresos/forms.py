@@ -1,5 +1,6 @@
 from django import forms
 from .models import IngresoPlayon
+from . import views
 from playon.models import LugarPlayon
 
 # Formulario para registrar el ingreso de un vehículo al playón. Se usa en la vista de registro de ingresos.
@@ -79,5 +80,6 @@ class EditarIngresoPlayonForm(forms.ModelForm):
             "coinciden_danios_registrados",
             "detalle_danios_no_coincidentes",
             "bateria_desconectada",
+            "operador_grua",
             "observaciones_generales",
         )
