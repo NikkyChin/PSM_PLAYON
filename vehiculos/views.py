@@ -45,3 +45,19 @@ def detalle_vehiculo(request, vehiculo_id):
         "vehiculos/detalle_vehiculo.html",
         {"vehiculo": vehiculo, "ingresos": ingresos},
     )
+
+
+@login_required
+def imprimir_lista_vehiculos(request):
+    q = (request.GET.get("q") or "").strip()
+
+    vehiculos = Vehiculo.objects.all().order_by("-fecha_alta")
+
+    if q:
+        vehiculos = vehiculos.filter(
+            Q(dominio__icontains=q) |
+            Q(marca__icontains=q) |
+            Q(modelo__icontains=q)
+        )
+
+    return render(request, "vehiculos/imprimir_lista.html", {"vehiculos": vehiculos, "q": q})

@@ -32,6 +32,9 @@
       <a class="btn btn--ghost" href="{% url 'nuevo_ingreso_playon' %}">
         ➕ Registrar ingreso
       </a>
+      <a class="btn btn--ok" href="{% url 'imprimir_lista_vehiculos' %}?q={{ q|urlencode }}" target="_blank">
+        🖨️ Imprimir
+      </a>
       <a class="btn btn--ghost" href="{% url 'home' %}">
         ⬅ Volver al menú
       </a>

@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Listado de Vehículos - Playón</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 22px; color:#111; }
+    .header { display:flex; gap:14px; align-items:center; border-bottom:2px solid #111; padding-bottom:10px; }
+    .logo { width:80px; height:auto; }
+    h1 { margin:0; font-size:18px; }
+    .sub { margin:4px 0 0; font-size:12px; color:#444; }
+
+    .meta { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:10px; font-size:12px; color:#333; }
+    .pill { display:inline-block; border:1px solid #bbb; border-radius:999px; padding:6px 10px; font-size:12px; }
+
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { border:1px solid #ccc; padding:7px 8px; font-size:12px; text-align:left; vertical-align:top; }
+    th { background:#f3f3f3; font-weight:700; }
+
+    .muted { color:#666; }
+    .no-print { margin-top:14px; display:flex; gap:10px; }
+    button { padding:10px 12px; border-radius:10px; border:1px solid #333; background:#f2f2f2; cursor:pointer; }
+    button:hover { background:#e8e8e8; }
+
+    @media print {
+      .no-print { display:none; }
+      @page { margin: 18mm; }
+      body { margin: 0; }
+      tr { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <img class="logo" src="{% static 'img/logo_muni.png' %}" alt="Logo municipal">
+    <div>
+      <h1>Playón de Secuestro Municipal — Listado de Vehículos</h1>
+      <div class="sub">Documento interno</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="pill"><b>Total:</b> {{ vehiculos|length }}</div>
+    <div class="pill"><b>Generado:</b> {% now "d/m/Y H:i" %}</div>
+
+    {% if q %}
+      <div class="pill"><b>Filtro:</b> {{ q }}</div>
+    {% else %}
+      <div class="pill muted">Sin filtro</div>
+    {% endif %}
+  </div>
+
+  {% if vehiculos %}
+    <table>
+      <thead>
+        <tr>
+          <th style="width:110px;">Dominio</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th style="width:120px;">Color</th>
+          <th style="width:70px;">Año</th>
+          <th style="width:140px;">Fecha alta</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vehiculos %}
+          <tr>
+            <td><b>{{ v.dominio }}</b></td>
+            <td>{{ v.marca|default:"-" }}</td>
+            <td>{{ v.modelo|default:"-" }}</td>
+            <td>{{ v.color|default:"-" }}</td>
+            <td>{{ v.anio|default:"-" }}</td>
+            <td>{{ v.fecha_alta }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted" style="margin-top:12px;">No hay vehículos registrados.</p>
+  {% endif %}
+
+  <div class="no-print">
+    <button onclick="window.print()">🖨️ Imprimir</button>
+    <button onclick="history.back()">⬅ Volver</button>
+  </div>
+
+</body>
+</html>
