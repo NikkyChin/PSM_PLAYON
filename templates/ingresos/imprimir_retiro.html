@@ -76,6 +76,7 @@
       <div class="row"><div class="k">Lugar en playón</div><div class="v">{% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</div></div>
 
       <div class="row"><div class="k">Recibido por</div><div class="v">{{ ingreso.recibido_por.username }}</div></div>
+      <div class="row"><div class="k">Operador/a grua</div><div class="v">{{ ingreso.operador_grua|default:"-" }}</div></div>
       <div class="row"><div class="k">Lugar infracción</div><div class="v">{{ ingreso.lugar_infraccion|default:"-" }}</div></div>
 
       <div class="row"><div class="k">Acta infracción</div><div class="v">{{ ingreso.acta_infraccion_recibida|yesno:"Sí,No" }}</div></div>

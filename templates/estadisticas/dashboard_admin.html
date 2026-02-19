@@ -9,7 +9,6 @@
     <div style="display:flex; justify-content:flex-end; margin-top:10px;">
         <a class="btn btn--ok" href="{% url 'imprimir_dashboard' %}" target="_blank">🖨️ imprimir</a>
     </div>
-
   </div>
 
   <div class="card" style="display:grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap:12px;">
@@ -63,47 +62,73 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const estadosLabels = {{ estados_labels|safe }};
-    const estadosValues = {{ estados_values|safe }};
-
-    const alcoLabels = {{ alco_labels|safe }};
-    const alcoValues = {{ alco_values|safe }};
-
-    const tipoLabels = {{ tipo_labels|safe }};
-    const tipoValues = {{ tipo_values|safe }};
-
-    const motivosLabels = {{ motivos_labels|safe }};
-    const motivosValues = {{ motivos_values|safe }};
-
-    new Chart(document.getElementById("chartEstados"), {
-      type: "pie",
-      data: { labels: estadosLabels, datasets: [{ data: estadosValues }] },
-      options: { responsive: true }
-    });
-
-    new Chart(document.getElementById("chartAlco"), {
-      type: "doughnut",
-      data: { labels: alcoLabels, datasets: [{ data: alcoValues }] },
-      options: { responsive: true }
-    });
-
-    new Chart(document.getElementById("chartTipos"), {
-      type: "bar",
-      data: { labels: tipoLabels, datasets: [{ data: tipoValues }] },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!window.Chart) {
+        console.log("Chart.js NO cargó (CDN bloqueado/sin internet).");
+        return;
       }
-    });
 
-    new Chart(document.getElementById("chartMotivos"), {
-      type: "bar",
-      data: { labels: motivosLabels, datasets: [{ data: motivosValues }] },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
+      // ✅ JSON seguro desde Django
+      const estadosLabels = JSON.parse('{{ estados_labels|escapejs }}');
+      const estadosValues = JSON.parse('{{ estados_values|escapejs }}');
+
+      const alcoLabels = JSON.parse('{{ alco_labels|escapejs }}');
+      const alcoValues = JSON.parse('{{ alco_values|escapejs }}');
+
+      const tipoLabels = JSON.parse('{{ tipo_labels|escapejs }}');
+      const tipoValues = JSON.parse('{{ tipo_values|escapejs }}');
+
+      const motivosLabels = JSON.parse('{{ motivos_labels|escapejs }}');
+      const motivosValues = JSON.parse('{{ motivos_values|escapejs }}');
+
+      function getCanvas(id) {
+        const el = document.getElementById(id);
+        if (!el) console.log("No existe canvas:", id);
+        return el;
+      }
+
+      const cEstados = getCanvas("chartEstados");
+      if (cEstados) {
+        new Chart(cEstados, {
+          type: "pie",
+          data: { labels: estadosLabels, datasets: [{ data: estadosValues, borderWidth: 1 }] },
+          options: { responsive: true }
+        });
+      }
+
+      const cAlco = getCanvas("chartAlco");
+      if (cAlco) {
+        new Chart(cAlco, {
+          type: "doughnut",
+          data: { labels: alcoLabels, datasets: [{ data: alcoValues, borderWidth: 1 }] },
+          options: { responsive: true }
+        });
+      }
+
+      const cTipos = getCanvas("chartTipos");
+      if (cTipos) {
+        new Chart(cTipos, {
+          type: "bar",
+          data: { labels: tipoLabels, datasets: [{ data: tipoValues, borderWidth: 1 }] },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      const cMotivos = getCanvas("chartMotivos");
+      if (cMotivos) {
+        new Chart(cMotivos, {
+          type: "bar",
+          data: { labels: motivosLabels, datasets: [{ data: motivosValues, borderWidth: 1 }] },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
       }
     });
   </script>

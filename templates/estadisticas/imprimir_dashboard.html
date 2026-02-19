@@ -34,8 +34,7 @@
     }
   </style>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 </head>
 <body>
 
@@ -55,34 +54,18 @@
   </div>
 
   <div class="charts">
-
-    <!-- GRÁFICO: ESTADO -->
     <div class="chart-box">
       <div class="chart-title">Estado de ingresos (en playón vs retirados)</div>
-
       <canvas id="chartEstado" height="160"></canvas>
       <img id="chartEstadoImg" class="chart-img hide" alt="Gráfico estado">
     </div>
 
-    <!-- GRÁFICO: ALCOHOLEMIA -->
     <div class="chart-box">
       <div class="chart-title">Prueba de alcoholemia</div>
-
       <canvas id="chartAlco" height="160"></canvas>
       <img id="chartAlcoImg" class="chart-img hide" alt="Gráfico alcoholemia">
     </div>
-
   </div>
-
-  <!--
-  ==========================================
-  COMENTADOS POR AHORA (NO USAR)
-  ==========================================
-
-  - Tipo de vehículo (bar)
-  - Top motivos (según acta)
-  ==========================================
-  -->
 
   <div class="no-print">
     <button onclick="window.print()">Imprimir</button>
@@ -90,27 +73,21 @@
   </div>
 
   <script>
-    // Helpers: porcentaje + leyenda con valores
-    function makePieLegendWithValues(chart) {
-      const data = chart.data.datasets[0].data;
-      const labels = chart.data.labels;
-
-      const total = data.reduce((a,b) => a + b, 0) || 1;
+    function legendWithValues(chart) {
+      const data = chart.data.datasets[0].data || [];
+      const labels = chart.data.labels || [];
+      const total = data.reduce((a,b)=>a+b,0) || 1;
 
       return {
-        position: 'bottom',
+        position: "bottom",
         labels: {
           boxWidth: 12,
-          generateLabels: function(c) {
-            const dataset = c.data.datasets[0];
-            const vals = dataset.data;
-
-            return c.data.labels.map((label, i) => {
-              const v = vals[i] ?? 0;
-              const pct = Math.round((v * 100 / total) * 10) / 10; // 1 decimal
-              const meta = c.getDatasetMeta(0);
+          generateLabels: (c) => {
+            const meta = c.getDatasetMeta(0);
+            return labels.map((label, i) => {
+              const v = data[i] ?? 0;
+              const pct = Math.round((v*100/total)*10)/10;
               const style = meta.controller.getStyle(i);
-
               return {
                 text: `${label}: ${v} (${pct}%)`,
                 fillStyle: style.backgroundColor,
@@ -125,93 +102,81 @@
       };
     }
 
-    function exportCanvasToImg(chart, canvasId, imgId) {
+    function freezeChartToImage(chart, canvasId, imgId) {
       const canvas = document.getElementById(canvasId);
       const img = document.getElementById(imgId);
 
-      // dejarle un respiro al render
+      // Espera un toque para asegurar render final
       setTimeout(() => {
-        img.src = chart.toBase64Image();
-        img.classList.remove("hide");
-        canvas.classList.add("hide");
-      }, 150);
+        try {
+          img.src = chart.toBase64Image();
+          img.classList.remove("hide");
+          canvas.classList.add("hide");
+        } catch (e) {
+          // si algo falla, dejamos canvas visible
+          console.error("No se pudo exportar el chart:", e);
+        }
+      }, 250);
     }
 
-    // =======================
-    // Datos desde Django
-    // =======================
-    const estadoData = {
-      labels: ["En playón", "Retirados"],
-      values: [Number("{{ en_playon|default:0 }}"), Number("{{ retirados|default:0 }}")]
-    };
+    async function renderAndFreeze() {
+      // Datos desde Django (numbers seguros)
+      const estadoLabels = ["En playón", "Retirados"];
+      const estadoValues = [
+        Number("{{ en_playon|default:0 }}"),
+        Number("{{ retirados|default:0 }}")
+      ];
 
-    const alcoData = {
-      labels: ["SI", "NO", "NC"],
-      values: [
+      const alcoLabels = ["SI", "NO", "NC"];
+      const alcoValues = [
         Number("{{ alco_si|default:0 }}"),
         Number("{{ alco_no|default:0 }}"),
         Number("{{ alco_nc|default:0 }}")
-      ]
-    };
+      ];
 
-    // =======================
-    // Chart: Estado
-    // =======================
-    const ctxEstado = document.getElementById("chartEstado").getContext("2d");
-    const chartEstado = new Chart(ctxEstado, {
-      type: "pie",
-      data: {
-        labels: estadoData.labels,
-        datasets: [{
-          data: estadoData.values,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        animation: false,
-        plugins: {
-          legend: makePieLegendWithValues(this)
+      // Chart Estado
+      const chartEstado = new Chart(document.getElementById("chartEstado"), {
+        type: "pie",
+        data: { labels: estadoLabels, datasets: [{ data: estadoValues, borderWidth: 1 }] },
+        options: {
+          responsive: true,
+          animation: false,
+          devicePixelRatio: 2,
+          plugins: { legend: { display: true } }
         }
-      }
-    });
+      });
+      chartEstado.options.plugins.legend = legendWithValues(chartEstado);
+      chartEstado.update();
 
-    // Nota: Chart.js no deja usar "this" así. Ajuste correcto:
-    chartEstado.options.plugins.legend = makePieLegendWithValues(chartEstado);
-    chartEstado.update();
-
-    // =======================
-    // Chart: Alcoholemia
-    // =======================
-    const ctxAlco = document.getElementById("chartAlco").getContext("2d");
-    const chartAlco = new Chart(ctxAlco, {
-      type: "pie",
-      data: {
-        labels: alcoData.labels,
-        datasets: [{
-          data: alcoData.values,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        animation: false,
-        plugins: {
-          legend: makePieLegendWithValues(this)
+      // Chart Alco
+      const chartAlco = new Chart(document.getElementById("chartAlco"), {
+        type: "pie",
+        data: { labels: alcoLabels, datasets: [{ data: alcoValues, borderWidth: 1 }] },
+        options: {
+          responsive: true,
+          animation: false,
+          devicePixelRatio: 2,
+          plugins: { legend: { display: true } }
         }
-      }
-    });
+      });
+      chartAlco.options.plugins.legend = legendWithValues(chartAlco);
+      chartAlco.update();
 
-    chartAlco.options.plugins.legend = makePieLegendWithValues(chartAlco);
-    chartAlco.update();
+      // “Congelar” a imagen para impresión
+      freezeChartToImage(chartEstado, "chartEstado", "chartEstadoImg");
+      freezeChartToImage(chartAlco, "chartAlco", "chartAlcoImg");
 
-    // Export a imagen para que imprima SIEMPRE
-    exportCanvasToImg(chartEstado, "chartEstado", "chartEstadoImg");
-    exportCanvasToImg(chartAlco, "chartAlco", "chartAlcoImg");
+      // Antes de imprimir, volvemos a congelar por si el navegador re-renderiza
+      window.addEventListener("beforeprint", () => {
+        freezeChartToImage(chartEstado, "chartEstado", "chartEstadoImg");
+        freezeChartToImage(chartAlco, "chartAlco", "chartAlcoImg");
+      });
+    }
 
-    window.addEventListener("beforeprint", () => {
-      exportCanvasToImg(chartEstado, "chartEstado", "chartEstadoImg");
-      exportCanvasToImg(chartAlco, "chartAlco", "chartAlcoImg");
+    document.addEventListener("DOMContentLoaded", () => {
+      // Chart.js está con defer, pero igual esperamos a que exista
+      if (window.Chart) renderAndFreeze();
+      else setTimeout(renderAndFreeze, 200);
     });
   </script>
 
