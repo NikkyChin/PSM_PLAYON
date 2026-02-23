@@ -70,6 +70,17 @@ class IngresoPlayon(models.Model):
     dni_retira = models.CharField("DNI de quien retira", max_length=20, blank=True)
     observaciones_egreso = models.TextField("Observaciones de egreso", blank=True)
 
+    retiro_autorizado = models.BooleanField("Retiro autorizado por Juzgado", default=False)
+    retiro_autorizado_en = models.DateTimeField("Fecha autorización", null=True, blank=True)
+    retiro_autorizado_por = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="retiros_autorizados",
+        verbose_name="Autorizado por",
+    )
+
     class Meta:
         verbose_name = "Ingreso al playón"
         verbose_name_plural = "Ingresos al playón"

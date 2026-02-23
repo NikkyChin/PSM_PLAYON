@@ -13,3 +13,9 @@ def es_inspector(user) -> bool:
     grupos = set(user.groups.values_list("name", flat=True))
     # inspector o admin
     return ("INSPECTOR" in grupos) or ("ADMIN_SISTEMA" in grupos) or user.is_superuser
+
+def es_juez(user) -> bool:
+    if not user.is_authenticated:
+        return False
+    grupos = set(user.groups.values_list("name", flat=True))
+    return ("JUEZ" in grupos) or ("ADMIN_SISTEMA" in grupos) or user.is_superuser

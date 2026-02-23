@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Count
 from .models import Infraccion, AuditoriaInfraccion
 from .forms import InfraccionForm
-from .permissions import es_inspector, es_admin_sistema
+from .permissions import es_inspector, es_admin_sistema, es_juez
 
 # Auditoría de cambios: función para comparar un objeto original con los datos de un formulario, y generar un texto con los cambios realizados, 
 # solo para los campos que cambiaron. Se usa para registrar auditorías de edición de actas de infracción.
@@ -82,7 +82,7 @@ def detalle_acta(request, acta_id):
         return render(request, "cuentas/no_permiso.html")
 
     qs = Infraccion.objects.all()
-    if not es_admin_sistema(request.user):
+    if not es_admin_sistema(request.user) or es_juez(request.user):
         qs = qs.filter(inspector=request.user)
 
     acta = get_object_or_404(qs, id=acta_id)

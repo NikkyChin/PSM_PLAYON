@@ -129,6 +129,10 @@ def registrar_egreso(request, ingreso_id):
     # si ya está retirado, no tiene sentido cargarlo de nuevo
     if ingreso.retirado:
         return redirect("lista_ingresos")
+    
+    if not ingreso.retiro_autorizado:
+    # podés renderizar una pantalla linda, o mostrar un mensaje
+        return render(request, "ingresos/no_autorizado.html", {"ingreso": ingreso})
 
     if request.method == "POST":
         form = EgresoPlayonForm(request.POST, instance=ingreso)

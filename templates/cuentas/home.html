@@ -118,23 +118,23 @@
 
   {% endif %}
 
-  {% if es_juez %}
+  {% if es_juez or es_admin_sistema %}
     <div class="card">
       <div class="h2">Módulo Juzgado de Faltas</div>
       <p class="muted">Pendiente para próximas etapas.</p>
 
       <div class="grid-actions">
-        <div class="action action--disabled">
+        <a class="action" href="{% url 'juzgado:lista_autorizaciones' %}">
           <div class="action__icon">⚖️</div>
           <div class="action__title">Autorizar retiro</div>
           <div class="action__desc">Alta judicial para egreso.</div>
-        </div>
+        </a>
 
-        <div class="action action--disabled">
-          <div class="action__icon">📚</div>
-          <div class="action__title">Historial por vehículo</div>
-          <div class="action__desc">Reincidencias y registros.</div>
-        </div>
+        <a class="action" href="{% url 'juzgado:lista_autorizaciones' %}">
+          <div class="action__icon">🔎</div>
+          <div class="action__title">Historial de autorizaciones</div>
+          <div class="action__desc">Ver historial de todas las autorizaciones.</div>
+        </a>
       </div>
     </div>
   {% endif %}

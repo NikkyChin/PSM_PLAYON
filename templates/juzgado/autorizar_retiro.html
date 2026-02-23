@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Autorizar retiro{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="h2">Actas asociadas a la patente {{ ingreso.vehiculo.dominio }}</div>
+  <p class="muted">Se muestran las actas registradas por inspectores para esta patente.</p>
+
+  {% if actas %}
+    <div style="overflow:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N° Acta</th>
+            <th>Inspector</th>
+            <th>DNI</th>
+            <th>Infractor</th>
+            <th>Retenido</th>
+            <th>Fecha</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in actas %}
+            <tr>
+              <td style="font-weight:900; color:var(--text);">{{ a.nro_acta }}</td>
+              <td>{{ a.inspector.username }}</td>
+              <td>{{ a.dni_infractor }}</td>
+              <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }}</td>
+              <td>{{ a.retenido_playon|yesno:"Sí,No" }}</td>
+              <td>{{ a.creada_en }}</td>
+              <td>
+                <a class="btn btn--ghost" href="{% url 'infracciones:detalle' a.id %}" target="_blank">
+                  📄 Ver acta
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No hay actas registradas para esta patente.</p>
+  {% endif %}
+</div>
+
+
+    <div>
+      <div class="h2">Estado de autorización</div>
+
+      {% if ingreso.retiro_autorizado %}
+        <div class="pill" style="border-color: rgba(31,191,117,.35); padding:12px;">
+          <b style="color:var(--ok)">Autorizado ✅</b><br>
+          <span class="muted" style="font-size:12px;">
+            {% if ingreso.retiro_autorizado_por %}Por: {{ ingreso.retiro_autorizado_por.username }}{% else %}Por: -{% endif %}
+            {% if ingreso.retiro_autorizado_en %} — {{ ingreso.retiro_autorizado_en }}{% endif %}
+          </span>
+        </div>
+
+        <form method="post" action="{% url 'juzgado:revocar_autorizacion' ingreso.id %}" style="margin-top:12px;">
+          {% csrf_token %}
+          <button class="btn btn--bad" type="submit">❌ Revocar autorización</button>
+        </form>
+      {% else %}
+        <div class="pill" style="border-color: rgba(246,201,69,.35); padding:12px;">
+          <b style="color:var(--warn)">Pendiente</b><br>
+          <span class="muted" style="font-size:12px;">No hay autorización registrada.</span>
+        </div>
+
+        <form method="post" style="margin-top:12px;">
+          {% csrf_token %}
+          <button class="btn btn--ok" type="submit">✅ Autorizar retiro</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
