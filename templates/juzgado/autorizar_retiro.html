@@ -3,75 +3,104 @@
 
 {% block content %}
 <div class="card">
-  <div class="h2">Actas asociadas a la patente {{ ingreso.vehiculo.dominio }}</div>
-  <p class="muted">Se muestran las actas registradas por inspectores para esta patente.</p>
+  <div class="h1">Autorizar retiro</div>
 
-  {% if actas %}
-    <div style="overflow:auto;">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>N° Acta</th>
-            <th>Inspector</th>
-            <th>DNI</th>
-            <th>Infractor</th>
-            <th>Retenido</th>
-            <th>Fecha</th>
-            <th>Detalle</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in actas %}
-            <tr>
-              <td style="font-weight:900; color:var(--text);">{{ a.nro_acta }}</td>
-              <td>{{ a.inspector.username }}</td>
-              <td>{{ a.dni_infractor }}</td>
-              <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }}</td>
-              <td>{{ a.retenido_playon|yesno:"Sí,No" }}</td>
-              <td>{{ a.creada_en }}</td>
-              <td>
-                <a class="btn btn--ghost" href="{% url 'infracciones:detalle' a.id %}" target="_blank">
-                  📄 Ver acta
-                </a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="pills" style="margin-top:12px; gap:10px;">
+    <span class="pill"><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</span>
+    <span class="pill"><b>Legajo:</b> {{ ingreso.nro_legajo_playon }}</span>
+    <span class="pill"><b>Ingreso:</b> {{ ingreso.fecha_ingreso }}</span>
+    <span class="pill"><b>Lugar:</b> {% if ingreso.lugar %}{{ ingreso.lugar.codigo }}{% else %}-{% endif %}</span>
+  </div>
+
+  {% if error %}
+    <div class="pill" style="margin-top:12px; border-color: rgba(255,80,80,.4);">
+      <b style="color: var(--bad);">{{ error }}</b>
     </div>
-  {% else %}
-    <p class="muted">No hay actas registradas para esta patente.</p>
   {% endif %}
 </div>
 
+<div class="card">
+  <div class="h2">Actas asociadas a la patente</div>
 
-    <div>
-      <div class="h2">Estado de autorización</div>
+  {% if actas %}
+    <table class="table" style="margin-top:10px;">
+      <thead>
+        <tr>
+          <th>N° Acta</th>
+          <th>Inspector</th>
+          <th>Infractor</th>
+          <th>Retenido</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in actas %}
+          <tr>
+            <td style="font-weight:900;">{{ a.nro_acta }}</td>
+            <td>{{ a.inspector.username }}</td>
+            <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }} ({{ a.dni_infractor }})</td>
+            <td>{{ a.retenido_playon|yesno:"Sí,No" }}</td>
+            <td>{{ a.creada_en }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No hay actas asociadas a este dominio.</p>
+  {% endif %}
+</div>
 
-      {% if ingreso.retiro_autorizado %}
-        <div class="pill" style="border-color: rgba(31,191,117,.35); padding:12px;">
-          <b style="color:var(--ok)">Autorizado ✅</b><br>
-          <span class="muted" style="font-size:12px;">
-            {% if ingreso.retiro_autorizado_por %}Por: {{ ingreso.retiro_autorizado_por.username }}{% else %}Por: -{% endif %}
-            {% if ingreso.retiro_autorizado_en %} — {{ ingreso.retiro_autorizado_en }}{% endif %}
-          </span>
-        </div>
+<div class="card">
+  <div class="h2">Resolución del Juzgado</div>
 
-        <form method="post" action="{% url 'juzgado:revocar_autorizacion' ingreso.id %}" style="margin-top:12px;">
-          {% csrf_token %}
-          <button class="btn btn--bad" type="submit">❌ Revocar autorización</button>
-        </form>
-      {% else %}
-        <div class="pill" style="border-color: rgba(246,201,69,.35); padding:12px;">
-          <b style="color:var(--warn)">Pendiente</b><br>
-          <span class="muted" style="font-size:12px;">No hay autorización registrada.</span>
-        </div>
-
-        <form method="post" style="margin-top:12px;">
-          {% csrf_token %}
-          <button class="btn btn--ok" type="submit">✅ Autorizar retiro</button>
-        </form>
-      {% endif %}
+  {% if ingreso.retiro_autorizado %}
+    <div class="pill" style="border-color: rgba(31,191,117,.35);">
+      <b style="color:var(--ok)">Autorizado ✅</b><br>
+      Por: {{ ingreso.retiro_autorizado_por.username }}<br>
+      Fecha: {{ ingreso.retiro_autorizado_en }}
     </div>
-  </div>
+
+    <div style="margin-top:12px;">
+      <b>Motivo:</b>
+      <div class="muted" style="white-space:pre-wrap;">{{ ingreso.retiro_autorizacion_motivo|default:"-" }}</div>
+    </div>
+
+    {% if ingreso.retiro_autorizacion_archivo %}
+      <div style="margin-top:12px;">
+        <a class="btn btn--ghost" href="{{ ingreso.retiro_autorizacion_archivo.url }}" target="_blank">
+          📎 Ver oficio adjunto
+        </a>
+      </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'juzgado:revocar_autorizacion' ingreso.id %}" style="margin-top:12px;">
+      {% csrf_token %}
+      <button class="btn btn--bad" type="submit">❌ Revocar autorización</button>
+      <a class="btn btn--ghost" href="{% url 'juzgado:lista_autorizaciones' %}">⬅ Volver</a>
+    </form>
+
+  {% else %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div style="margin-top:10px;">
+        <label><b>Motivo / descripción de la autorización</b></label>
+        <textarea name="retiro_autorizacion_motivo" rows="4" style="width:100%;" required
+          placeholder="Ej: Se autoriza retiro por resolución N°..., acreditando titularidad y pago de multa..."></textarea>
+      </div>
+
+      <div style="margin-top:12px;">
+        <label><b>Adjuntar oficio / resolución (PDF, foto o archivo)</b></label><br>
+        <input type="file" name="retiro_autorizacion_archivo" accept=".pdf,image/*,.doc,.docx">
+      </div>
+
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn--ok" type="submit">✅ Autorizar retiro</button>
+        <a class="btn btn--ghost" href="{% url 'juzgado:lista_autorizaciones' %}">Cancelar</a>
+      </div>
+    </form>
+
+  {% endif %}
+</div>
 {% endblock %}

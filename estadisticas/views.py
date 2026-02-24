@@ -17,7 +17,7 @@ def es_admin_sistema(user) -> bool:
 @login_required
 def dashboard_admin(request):
     if not es_admin_sistema(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     total = IngresoPlayon.objects.count()
     en_playon = IngresoPlayon.objects.filter(retirado=False).count()
@@ -84,7 +84,7 @@ def dashboard_admin(request):
 @login_required
 def imprimir_dashboard(request):
     if not request.user.groups.filter(name="ADMIN_SISTEMA").exists():
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     ingresos = IngresoPlayon.objects.all()
 

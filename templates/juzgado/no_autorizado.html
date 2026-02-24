@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Retiro no autorizado{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-grow-1">
+              <h2 class="h4 mb-2">Este vehículo no se encuentra autorizado para su retiro</h2>
+
+              <p class="mb-2">
+                El <strong>Juzgado de Faltas</strong> aún <strong>no otorgó la autorización</strong> correspondiente para retirar este vehículo del playón.
+              </p>
+
+              <p class="text-muted mb-0">
+                Para evitar demoras, verificá que la documentación y el trámite estén completos y que la resolución del Juzgado haya sido emitida.
+              </p>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="alert alert-warning mb-4" role="alert">
+            <strong>Importante:</strong> Si considerás que esto es un error o ya contás con una autorización vigente,
+            comunicate con el Juzgado de Faltas y/o con la administración del playón para validar el estado del trámite.
+          </div>
+
+          <h3 class="h6 mb-2">¿Qué podés hacer ahora?</h3>
+          <ul class="mb-4">
+            <li>Confirmar que el trámite esté iniciado y en curso.</li>
+            <li>Consultar si falta documentación o algún pago asociado.</li>
+            <li>Solicitar/validar el oficio o resolución de autorización.</li>
+          </ul>
+
+          <div class="p-3 rounded border bg-light">
+            <h4 class="h6 mb-3">Contacto</h4>
+
+            <div class="row g-2 small">
+              <div class="col-12 col-md-6">
+                <div><strong>Juzgado de Faltas:</strong></div>
+                <div>Tel: <a href="tel:+54XXXXXXXXXX">+54 XX XXXX-XXXX</a></div>
+                <div>Email: <a href="mailto:juzgado@municipio.gob.ar">juzgado@municipio.gob.ar</a></div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <div><strong>Playón / Depósito:</strong></div>
+                <div>Tel: <a href="tel:+54XXXXXXXXXX">+54 XX XXXX-XXXX</a></div>
+                <div>Horario: Lun a Vie 08:00 a 13:00</div>
+              </div>
+
+              <div class="col-12 mt-2 text-muted">
+                Dirección: Av. Ejemplo 123, Rawson, Chubut
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-flex gap-2 justify-content-end mt-4" style="margin: 50px 0 0 0;">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">Volver</a>
+          </div>
+
+        </div>
+      </div>
+
+      <p class="text-center text-muted small mt-3 mb-0">
+        Este estado puede cambiar una vez que el Juzgado emita la autorización correspondiente.
+      </p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

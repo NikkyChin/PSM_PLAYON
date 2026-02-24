@@ -1,61 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Juzgado — Autorizaciones{% endblock %}
+{% block title %}Juzgado - Autorizaciones{% endblock %}
 
 {% block content %}
-  <div class="card">
-    <div class="h1">Autorizaciones de retiro</div>
-    <p class="muted">Vehículos actualmente en el playón. Seleccioná uno para ver el acta y autorizar.</p>
-  </div>
+<div class="card">
+  <div class="h1">Vehículos en playón (para autorizar retiro)</div>
+  <p class="muted">Listado de ingresos activos. Podés buscar por dominio, legajo o lugar de infracción.</p>
 
-  <div class="card">
-    {% if ingresos %}
-      <div style="overflow:auto;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>N° Acta</th>
-              <th>Dominio</th>
-              <th>Lugar</th>
-              <th>Ingreso</th>
-              <th>Legajo</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in ingresos %}
-              <tr>
-                <td style="font-weight:900; color:var(--text);">
-                  {{ i.nro_acta|default:"-" }}
-                </td>
-
-                <td style="font-weight:900; color:var(--text);">
-                  {{ i.vehiculo.dominio }}
-                </td>
-
-                <td>
-                  {% if i.lugar %}
-                    <span class="pill">{{ i.lugar.codigo }}</span>
-                  {% else %}
-                    <span class="muted">-</span>
-                  {% endif %}
-                </td>
-
-                <td>{{ i.fecha_ingreso }}</td>
-
-                <td>{{ i.nro_legajo_playon }}</td>
-
-                <td>
-                  <a class="btn btn--ghost" href="{% url 'juzgado:autorizar_retiro' i.id %}">
-                    🔎 Ver / Autorizar
-                  </a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% else %}
-      <p class="muted">No hay vehículos pendientes.</p>
+  <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+    <input type="text" name="q" placeholder="Buscar..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
+    <button class="btn btn--ghost" type="submit">Buscar</button>
+    {% if q %}
+      <a class="btn btn--ghost" href="{% url 'juzgado:lista_autorizaciones' %}">Limpiar</a>
     {% endif %}
-  </div>
+    <span style="flex:1"></span>
+
+    <a class="btn btn--ghost" href="{% url 'juzgado:historial_autorizaciones' %}">📚 Historial</a>
+  </form>
+</div>
+
+<div class="card">
+  {% if ingresos %}
+    <div style="overflow:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N° Acta</th>
+            <th>Dominio</th>
+            <th>Legajo</th>
+            <th>Lugar</th>
+            <th>Ingreso</th>
+            <th>Autorizado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in ingresos %}
+            <tr>
+              <td style="font-weight:900;">{{ i.nro_acta|default:"-" }}</td>
+              <td style="font-weight:900;">{{ i.vehiculo.dominio }}</td>
+              <td>{{ i.nro_legajo_playon }}</td>
+              <td>{% if i.lugar %}{{ i.lugar.codigo }}{% else %}-{% endif %}</td>
+              <td>{{ i.fecha_ingreso }}</td>
+              <td>{{ i.retiro_autorizado|yesno:"Sí,No" }}</td>
+              <td>
+                <a class="btn btn--ok" href="{% url 'juzgado:autorizar_retiro' i.id %}">
+                  🔎 Ver / Autorizar
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No hay vehículos en el playón.</p>
+  {% endif %}
+</div>
 {% endblock %}

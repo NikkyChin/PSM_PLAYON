@@ -1,0 +1,14 @@
+{# 🚧 Este template está listo para usar cuando activen "historial de retiros" #}
+{% extends "base.html" %}
+{% block title %}{{ titulo|default:"Historial de Retiros" }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="h1">{{ titulo|default:"Historial de Retiros" }}</div>
+  <p class="muted">Solo vehículos que ya fueron retirados del playón.</p>
+</div>
+
+<div class="card">
+  <p class="muted">Pendiente de confirmación con Jefatura (activar cuando corresponda).</p>
+</div>
+{% endblock %}

@@ -48,13 +48,13 @@ def _qs_ingresos_base():
         .order_by("-fecha_ingreso")
     )
     
-# Lista de ingresos al playón con búsqueda
+# nuevo ingreso al playón, con formulario para cargar datos del ingreso y del vehículo, y generar auditoría de creación.
 @login_required
 def nuevo_ingreso_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
 
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     if request.method == "POST":
         form = IngresoPlayonForm(request.POST)
@@ -122,7 +122,7 @@ def registrar_egreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
 
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
 
@@ -132,7 +132,7 @@ def registrar_egreso(request, ingreso_id):
     
     if not ingreso.retiro_autorizado:
     # podés renderizar una pantalla linda, o mostrar un mensaje
-        return render(request, "ingresos/no_autorizado.html", {"ingreso": ingreso})
+        return render(request, "juzgado/no_autorizado.html", {"ingreso": ingreso})
 
     if request.method == "POST":
         form = EgresoPlayonForm(request.POST, instance=ingreso)
@@ -169,7 +169,7 @@ def registrar_egreso(request, ingreso_id):
 def imprimir_retiro(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     ingreso = get_object_or_404(
         IngresoPlayon.objects.select_related("vehiculo", "recibido_por", "entregado_por", "lugar"),
@@ -188,7 +188,7 @@ def detalle_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
 
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
     auditorias = ingreso.auditorias.select_related("usuario").all()[:20]
@@ -200,7 +200,7 @@ def detalle_ingreso(request, ingreso_id):
 def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
@@ -224,7 +224,7 @@ def lista_ingresos(request):
 def ingresos_en_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
@@ -247,7 +247,7 @@ def ingresos_en_playon(request):
 def retiros_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
@@ -270,7 +270,7 @@ def retiros_playon(request):
 def editar_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     ingreso = get_object_or_404(IngresoPlayon.objects.select_related("vehiculo"), id=ingreso_id)
     vehiculo = ingreso.vehiculo

@@ -95,26 +95,54 @@
                     </span>
                   {% endif %}
                 </td>
-
+                
+                <td>
+                  {% if i.retirado %}
+                    <span class="muted">-</span>
+                  {% else %}
+                    {% if i.retiro_autorizado %}
+                      <span class="pill" style="display:inline-block; border-color: rgba(31,191,117,.35);">
+                        <b style="color:var(--ok)">Autorizado</b>
+                      </span>
+                    {% else %}
+                      <span class="pill" style="display:inline-block; border-color: rgba(255,77,77,.35);">
+                        <b style="color:var(--bad)">No autorizado</b>
+                      </span>
+                    {% endif %}
+                  {% endif %}
+                </td>
                 <td>
                   {% if i.fecha_retiro %}
                     {{ i.fecha_retiro }}
                   {% else %}
-                    <span class="muted">-</span>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <a class="btn btn--ghost" href="{% url 'detalle_ingreso' i.id %}">📄 Detalle</a>
+
+                      {% if not i.retirado %}
+                        <a class="btn btn--bad" href="{% url 'editar_ingreso' i.id %}">✏️ Editar</a>
+
+                        {% if i.retiro_autorizado %}
+                          <a class="btn btn--ok" href="{% url 'registrar_egreso' i.id %}">
+                            ✅ Realizar retiro
+                          </a>
+                        {% else %}
+                          <a class="btn btn--ghost" href="{% url 'registrar_egreso' i.id %}" title="No autorizado por el Juzgado de Faltas">
+                            ⛔ Retiro no autorizado
+                          </a>
+                        {% endif %}
+                      {% else %}
+                        <a class="btn btn--ok" href="{% url 'imprimir_retiro' i.id %}">
+                          🖨️ Imprimir retiro
+                        </a>
+
+                        {% if i.retiro_autorizado %}
+                          <a class="btn btn--ghost" href="{% url 'juzgado:autorizar_retiro' i.id %}">
+                            🔎 Ver autorización
+                          </a>
+                        {% endif %}
+                      {% endif %}
+                    </div>
                   {% endif %}
-                </td>
-
-                <td>
-                  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <a class="btn btn--ghost" href="{% url 'detalle_ingreso' i.id %}">📄 Detalle</a>
-
-                    {% if not i.retirado %}
-                      <a class="btn btn--bad" href="{% url 'registrar_egreso' i.id %}">🚗 Retiro</a>
-                      <a class="btn btn--bad" href="{% url 'editar_ingreso' i.id %}">✏️ Editar</a>
-                    {% else %}
-                      <a class="btn btn--ok" href="{% url 'imprimir_retiro' i.id %}">🖨️ Acta</a>
-                    {% endif %}
-                  </div>
                 </td>
               </tr>
             {% endfor %}

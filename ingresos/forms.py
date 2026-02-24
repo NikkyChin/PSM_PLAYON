@@ -1,28 +1,62 @@
 from django import forms
 from .models import IngresoPlayon
-from . import views
 from playon.models import LugarPlayon
 
-# Formulario para registrar el ingreso de un vehículo al playón. Se usa en la vista de registro de ingresos.
+
+# ==========================
+# 1) FORM: NUEVO INGRESO
+# ==========================
 class IngresoPlayonForm(forms.ModelForm):
+    # Campos extra (no están en IngresoPlayon)
     dominio = forms.CharField(label="Dominio (patente)", max_length=10)
     nro_chasis = forms.CharField(label="N° de chasis", max_length=50, required=False)
     nro_motor = forms.CharField(label="N° de motor", max_length=50, required=False)
 
-
     class Meta:
         model = IngresoPlayon
-        exclude = (
-            "fecha_ingreso",
-            "recibido_por",
-            "vehiculo",
-            "retirado",
-            "fecha_retiro",
-            "entregado_por",
-            "nombre_retira",
-            "dni_retira",
-            "observaciones_egreso",
+
+        # ✅ LISTA BLANCA: SOLO lo que se carga al ingresar
+        fields = (
+            # snapshot del ingreso (vehículo)
+            "tipo_vehiculo",
+            "marca",
+            "modelo",
+            "anio",
+            "color",
+
+            # datos del ingreso
+            "nro_legajo_playon",
+            "lugar_infraccion",
+            "ubicacion_interna",
+            "lugar",
+
+            # documentación
+            "acta_infraccion_recibida",
+            "acta_secuestro_recibida",
+            "inventario_objetos_visibles_recibido",
+            "registro_fotografico_recibido",
+
+            # alcoholemia
+            "prueba_alcoholemia_estado",
+
+            # observaciones / checklist
+            "coincide_inventario",
+            "coinciden_danios_registrados",
+            "detalle_danios_no_coincidentes",
+            "bateria_desconectada",
+
+            # traslado
+            "operador_grua",
+
+            # observaciones generales
+            "observaciones_generales",
         )
+
+        widgets = {
+            "detalle_danios_no_coincidentes": forms.Textarea(attrs={"rows": 3}),
+            "observaciones_generales": forms.Textarea(attrs={"rows": 3}),
+            "operador_grua": forms.Textarea(attrs={"rows": 2}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,7 +64,7 @@ class IngresoPlayonForm(forms.ModelForm):
         # 1) Por defecto: solo lugares LIBRES
         qs = LugarPlayon.objects.filter(estado="LIBRE").order_by("fila", "columna")
 
-        # 2) Si el usuario eligió tipo_vehiculo=MOTO (POST), filtramos a lugares tipo MOTO
+        # 2) Si el usuario eligió tipo_vehiculo=MOTO, filtramos a lugares tipo MOTO
         tipo = None
         if self.data:
             tipo = self.data.get("tipo_vehiculo")
@@ -40,11 +74,15 @@ class IngresoPlayonForm(forms.ModelForm):
         if tipo == "MOTO":
             qs = qs.filter(tipo="MOTO")
         else:
-            # si NO es moto, evitamos lugares exclusivos de moto
             qs = qs.exclude(tipo="MOTO")
 
+        # Lugar opcional
         self.fields["lugar"].queryset = qs
-        self.fields["lugar"].required = False  # por ahora opcional (hasta que tu jefe diga si es obligatorio)
+        self.fields["lugar"].required = False
+
+    def clean_dominio(self):
+        dom = (self.cleaned_data.get("dominio") or "").replace(" ", "").upper()
+        return dom
 
     def clean_lugar(self):
         lugar = self.cleaned_data.get("lugar")
@@ -56,30 +94,56 @@ class IngresoPlayonForm(forms.ModelForm):
 
         return lugar
 
-# Formulario para registrar el egreso de un vehículo del playón. Se usa en la vista de registro de egresos.
+
+# ==========================
+# 2) FORM: EGRESO / RETIRO
+# ==========================
 class EgresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
         fields = ("nombre_retira", "dni_retira", "observaciones_egreso")
 
-# Formulario para editar los datos de un ingreso al playón, incluyendo detalles del vehículo, lugar de infracción, actas recibidas, estado de la alcoholemia, etc. 
-# Se usa en la vista de edición de ingresos.
+        widgets = {
+            "observaciones_egreso": forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+# ==========================
+# 3) FORM: EDITAR INGRESO
+# ==========================
 class EditarIngresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
+
+        # ✅ LISTA BLANCA: SOLO lo que permitís editar
+        # (y NUNCA aparecen los campos del juez ni campos nuevos)
         fields = (
             "tipo_vehiculo",
             "lugar_infraccion",
             "nro_legajo_playon",
+
             "acta_infraccion_recibida",
             "acta_secuestro_recibida",
             "inventario_objetos_visibles_recibido",
             "registro_fotografico_recibido",
+
             "prueba_alcoholemia_estado",
+
             "coincide_inventario",
             "coinciden_danios_registrados",
             "detalle_danios_no_coincidentes",
             "bateria_desconectada",
+
             "operador_grua",
             "observaciones_generales",
+
+            # si querés permitir cambiar la ubicación/lugar, descomentá:
+            # "ubicacion_interna",
+            # "lugar",
         )
+
+        widgets = {
+            "detalle_danios_no_coincidentes": forms.Textarea(attrs={"rows": 3}),
+            "observaciones_generales": forms.Textarea(attrs={"rows": 3}),
+            "operador_grua": forms.Textarea(attrs={"rows": 2}),
+        }

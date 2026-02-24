@@ -61,7 +61,7 @@ def lista_actas(request):
 @login_required
 def nueva_acta(request):
     if not es_inspector(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     if request.method == "POST":
         form = InfraccionForm(request.POST)
@@ -79,7 +79,7 @@ def nueva_acta(request):
 @login_required
 def detalle_acta(request, acta_id):
     if not es_inspector(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     qs = Infraccion.objects.all()
     if not es_admin_sistema(request.user) or es_juez(request.user):
@@ -95,7 +95,7 @@ def detalle_acta(request, acta_id):
 @login_required
 def editar_acta(request, acta_id):
     if not es_inspector(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     qs = Infraccion.objects.all()
     if not es_admin_sistema(request.user):
@@ -115,7 +115,7 @@ def editar_acta(request, acta_id):
             if cambios_txt.strip():
                 AuditoriaInfraccion.objects.create(
                     infraccion=acta,
-                    usuario=request.user,
+                    usuario=request.user, 
                     accion="EDICION",
                     cambios_txt=cambios_txt,
                 )

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ titulo|default:"Historial" }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="h1">{{ titulo|default:"Historial" }}</div>
+  <p class="muted">Registros autorizados por el Juzgado (aunque aún no hayan sido retirados).</p>
+
+  <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+    <input type="text" name="q" placeholder="Buscar por dominio, legajo o motivo..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
+    <button class="btn btn--ghost" type="submit">Buscar</button>
+    {% if q %}
+      <a class="btn btn--ghost" href="{% url 'juzgado:historial_autorizaciones' %}">Limpiar</a>
+    {% endif %}
+    <span style="flex:1"></span>
+    <a class="btn btn--ghost" href="{% url 'juzgado:lista_autorizaciones' %}">⬅ Volver</a>
+  </form>
+</div>
+
+<div class="card">
+  {% if items %}
+    <div style="overflow:auto;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>N° Acta</th>
+            <th>Dominio</th>
+            <th>Legajo</th>
+            <th>Autorizado por</th>
+            <th>Fecha autorización</th>
+            <th>Motivo</th>
+            <th>Archivo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in items %}
+            <tr>
+              <td style="font-weight:900;">{{ i.nro_acta|default:"-" }}</td>
+              <td style="font-weight:900;">{{ i.vehiculo.dominio }}</td>
+              <td>{{ i.nro_legajo_playon }}</td>
+              <td>{% if i.retiro_autorizado_por %}{{ i.retiro_autorizado_por.username }}{% else %}-{% endif %}</td>
+              <td>{{ i.retiro_autorizado_en|default:"-" }}</td>
+              <td class="muted" style="max-width:520px; white-space:pre-wrap;">{{ i.retiro_autorizacion_motivo|default:"-" }}</td>
+              <td>
+                {% if i.retiro_autorizacion_archivo %}
+                  <a class="btn btn--ghost" href="{{ i.retiro_autorizacion_archivo.url }}" target="_blank">📎 Ver</a>
+                {% else %}
+                  <span class="muted">-</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">No hay autorizaciones registradas.</p>
+  {% endif %}
+</div>
+{% endblock %}

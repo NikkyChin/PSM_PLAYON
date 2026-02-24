@@ -130,10 +130,16 @@
           <div class="action__desc">Alta judicial para egreso.</div>
         </a>
 
-        <a class="action" href="{% url 'juzgado:lista_autorizaciones' %}">
-          <div class="action__icon">🔎</div>
+        <a class="action" href="{% url 'juzgado:historial_autorizaciones' %}">
+           <div class="action__icon">📜</div>
           <div class="action__title">Historial de autorizaciones</div>
           <div class="action__desc">Ver historial de todas las autorizaciones.</div>
+        </a>
+
+        <a class="action" href="{% url 'ingresos_en_playon' %}">
+          <div class="action__icon">🔎</div>
+          <div class="action__title">Vehículos en playón</div>
+          <div class="action__desc">Ver vehículos actualmente en el playón.</div>
         </a>
       </div>
     </div>

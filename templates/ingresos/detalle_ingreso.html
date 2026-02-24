@@ -30,9 +30,15 @@
           🖨️ Imprimir acta de retiro
         </a>
       {% else %}
-        <a class="btn btn--bad" href="{% url 'registrar_egreso' ingreso.id %}">
-          ✅ Registrar retiro ahora
-        </a>
+        {% if ingreso.retiro_autorizado %}
+          <a class="btn btn--ok" href="{% url 'registrar_egreso' ingreso.id %}">
+            ✅ Realizar retiro
+          </a>
+        {% else %}
+          <a class="btn btn--ghost" href="{% url 'registrar_egreso' ingreso.id %}" title="No autorizado por el Juzgado de Faltas">
+            ⛔ Retiro no autorizado
+          </a>
+        {% endif %}
       {% endif %}
 
       {% if ingreso.lugar %}
@@ -45,7 +51,6 @@
         🚗 Ver datos del vehículo
       </a>
     </div>
-  </div>
 
   <div class="card">
     <div class="h2">Información completa</div>

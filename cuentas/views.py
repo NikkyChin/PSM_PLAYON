@@ -20,3 +20,6 @@ def home(request):
 def logout_view(request):
     logout(request)
     return redirect("login")
+
+def no_permisos(request):
+    return render(request, "cuentas/no_permisos.html")

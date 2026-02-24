@@ -9,7 +9,7 @@ def lista_vehiculos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
 
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
@@ -28,7 +28,7 @@ def lista_vehiculos(request):
 def detalle_vehiculo(request, vehiculo_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
 

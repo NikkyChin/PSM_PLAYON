@@ -108,7 +108,7 @@ def detalle_lugar(request, lugar_id):
 def reactivar_lugar(request, lugar_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     lugar = get_object_or_404(LugarPlayon, id=lugar_id)
 
@@ -129,7 +129,7 @@ def reactivar_lugar(request, lugar_id):
 def marcar_lugar_fuera(request, lugar_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     lugar = get_object_or_404(LugarPlayon, id=lugar_id)
 
@@ -148,7 +148,7 @@ def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
 
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
 
@@ -181,7 +181,7 @@ def es_admin_sistema(user) -> bool:
 @login_required
 def reparar_tablero(request):
     if not es_admin_sistema(request.user):
-        return render(request, "cuentas/no_permiso.html")
+        return render(request, "cuentas/no_permisos.html")
 
     # corre el command
     call_command("seed_playon")
