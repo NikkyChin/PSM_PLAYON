@@ -86,7 +86,7 @@
 
   {% if ingreso.retirado %}
     <div class="info-grid">
-      <div class="kv"><div class="k">Fecha de retiro</div><div class="v">{{ ingreso.fecha_retiro|default:"-" }}</div></div>
+      <div class="kv"><div class="k">Fecha de retiro</div><div class="v">{{ ingreso.fecha_retiro|date:"d/m/Y H:i"|default:"-" }}</div></div>
       <div class="kv"><div class="k">Entregado por</div><div class="v">{% if ingreso.entregado_por %}{{ ingreso.entregado_por.username }}{% else %}-{% endif %}</div></div>
       <div class="kv"><div class="k">Nombre retira</div><div class="v">{{ ingreso.nombre_retira|default:"-" }}</div></div>
       <div class="kv"><div class="k">DNI retira</div><div class="v">{{ ingreso.dni_retira|default:"-" }}</div></div>
@@ -95,9 +95,22 @@
         <div class="k">Observaciones de egreso</div>
         <div class="v">{{ ingreso.observaciones_egreso|default:"-" }}</div>
       </div>
+
+      {% if ingreso.oficio_juez_archivo %}
+        <div class="kv wide">
+          <div class="k">Oficio presentado</div>
+          <div class="v">
+            <a class="btn btn--ghost" href="{{ ingreso.oficio_juez_archivo.url }}" target="_blank">
+              📎 Ver / descargar oficio
+            </a>
+          </div>
+        </div>
+      {% endif %}
     </div>
   {% else %}
-    <div class="muted" style="margin-top:8px;">Este vehículo aún no fue retirado del playón.</div>
+    <div class="muted" style="margin-top:8px;">
+      Este vehículo aún no fue retirado del playón.
+    </div>
   {% endif %}
 
   {% if auditorias %}
@@ -118,7 +131,7 @@
           <tbody>
             {% for a in auditorias %}
               <tr>
-                <td>{{ a.fecha }}</td>
+                <td>{{ a.creado_en|date:"d/m/Y H:i" }}</td>
                 <td>{{ a.usuario.username }}</td>
                 <td>{{ a.accion }}</td>
                 <td style="color: var(--text);">

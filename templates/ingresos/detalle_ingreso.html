@@ -5,6 +5,7 @@
 {% block content %}
   <div class="card">
     <div class="h1">Detalle del ingreso</div>
+
     <div class="pills">
       <span class="pill"><b>Legajo:</b> {{ ingreso.nro_legajo_playon }}</span>
       <span class="pill"><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</span>
@@ -30,15 +31,15 @@
           🖨️ Imprimir acta de retiro
         </a>
       {% else %}
-        {% if ingreso.retiro_autorizado %}
-          <a class="btn btn--ok" href="{% url 'registrar_egreso' ingreso.id %}">
-            ✅ Realizar retiro
-          </a>
-        {% else %}
-          <a class="btn btn--ghost" href="{% url 'registrar_egreso' ingreso.id %}" title="No autorizado por el Juzgado de Faltas">
-            ⛔ Retiro no autorizado
-          </a>
-        {% endif %}
+        <a class="btn btn--ok" href="{% url 'registrar_egreso' ingreso.id %}">
+          ✅ Realizar retiro
+        </a>
+      {% endif %}
+
+      {% if ingreso.oficio_juez_archivo %}
+        <a class="btn btn--ghost" href="{{ ingreso.oficio_juez_archivo.url }}" target="_blank">
+          📎 Ver oficio presentado
+        </a>
       {% endif %}
 
       {% if ingreso.lugar %}
@@ -51,6 +52,7 @@
         🚗 Ver datos del vehículo
       </a>
     </div>
+  </div>
 
   <div class="card">
     <div class="h2">Información completa</div>

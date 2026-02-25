@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import IngresoPlayon
 from playon.models import LugarPlayon
 
@@ -35,6 +36,7 @@ class IngresoPlayonForm(forms.ModelForm):
             "acta_secuestro_recibida",
             "inventario_objetos_visibles_recibido",
             "registro_fotografico_recibido",
+            "fecha_secuestro",
 
             # alcoholemia
             "prueba_alcoholemia_estado",
@@ -56,6 +58,7 @@ class IngresoPlayonForm(forms.ModelForm):
             "detalle_danios_no_coincidentes": forms.Textarea(attrs={"rows": 3}),
             "observaciones_generales": forms.Textarea(attrs={"rows": 3}),
             "operador_grua": forms.Textarea(attrs={"rows": 2}),
+            "fecha_secuestro": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -95,17 +98,35 @@ class IngresoPlayonForm(forms.ModelForm):
         return lugar
 
 
-# ==========================
-# 2) FORM: EGRESO / RETIRO
-# ==========================
 class EgresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
-        fields = ("nombre_retira", "dni_retira", "observaciones_egreso")
-
+        fields = ("nombre_retira", "dni_retira", "oficio_juez_archivo", "observaciones_egreso")
         widgets = {
             "observaciones_egreso": forms.Textarea(attrs={"rows": 3}),
+            "oficio_juez_archivo": forms.ClearableFileInput(),
         }
+        help_texts = {
+            "oficio_juez_archivo": "Adjuntá foto o PDF del oficio/orden presentada al momento del retiro:",
+        }
+
+    def clean_oficio_juez_archivo(self):
+        f = self.cleaned_data.get("oficio_juez_archivo")
+        if not f:
+            return f
+
+        # Tamaño máximo (ej: 10MB)
+        max_mb = 10
+        if f.size > max_mb * 1024 * 1024:
+            raise ValidationError(f"El archivo es muy grande (máximo {max_mb}MB).")
+
+        # Extensiones permitidas (suave, pero útil)
+        name = (f.name or "").lower()
+        allowed = (".pdf", ".jpg", ".jpeg", ".png", ".webp")
+        if not name.endswith(allowed):
+            raise ValidationError("Formato no permitido. Usá PDF o una imagen (JPG/PNG/WEBP).")
+
+        return f
 
 
 # ==========================
@@ -116,8 +137,10 @@ class EditarIngresoPlayonForm(forms.ModelForm):
         model = IngresoPlayon
 
         # ✅ LISTA BLANCA: SOLO lo que permitís editar
-        # (y NUNCA aparecen los campos del juez ni campos nuevos)
         fields = (
+            # ✅ nuevo: se puede corregir la fecha REAL del operativo
+            "fecha_secuestro",
+
             "tipo_vehiculo",
             "lugar_infraccion",
             "nro_legajo_playon",
@@ -143,7 +166,17 @@ class EditarIngresoPlayonForm(forms.ModelForm):
         )
 
         widgets = {
+            # ✅ nuevo widget para HTML datetime-local
+            "fecha_secuestro": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+
             "detalle_danios_no_coincidentes": forms.Textarea(attrs={"rows": 3}),
             "observaciones_generales": forms.Textarea(attrs={"rows": 3}),
             "operador_grua": forms.Textarea(attrs={"rows": 2}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Para que el datetime-local se precargue correctamente
+        if self.instance and self.instance.fecha_secuestro:
+            self.fields["fecha_secuestro"].initial = self.instance.fecha_secuestro.strftime("%Y-%m-%dT%H:%M")

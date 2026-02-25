@@ -8,7 +8,7 @@
   </div>
 
   <div class="card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
       {% if form_ingreso.non_field_errors or form_vehiculo.non_field_errors %}
@@ -28,7 +28,10 @@
         <div class="field-grid" style="margin-top:12px;">
           {% for field in form_vehiculo %}
             <div>
-              <div class="field-label">{{ field.label }}{% if field.field.required %} <span class="field-req">*</span>{% endif %}</div>
+              <div class="field-label">
+                {{ field.label }}
+                {% if field.field.required %} <span class="field-req">*</span>{% endif %}
+              </div>
               {{ field }}
               {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
             </div>
@@ -43,7 +46,10 @@
         <div class="field-grid" style="margin-top:12px;">
           {% for field in form_ingreso %}
             <div>
-              <div class="field-label">{{ field.label }}{% if field.field.required %} <span class="field-req">*</span>{% endif %}</div>
+              <div class="field-label">
+                {{ field.label }}
+                {% if field.field.required %} <span class="field-req">*</span>{% endif %}
+              </div>
               {{ field }}
               {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
             </div>

@@ -16,15 +16,31 @@
     <div class="pills">
       <span class="pill"><b>Legajo:</b> {{ ingreso.nro_legajo_playon }}</span>
       <span class="pill"><b>Dominio:</b> {{ ingreso.vehiculo.dominio }}</span>
-      <span class="pill"><b>Ingreso:</b> {{ ingreso.fecha_ingreso }}</span>
+
+      {% if ingreso.fecha_secuestro %}
+        <span class="pill"><b>Secuestro:</b> {{ ingreso.fecha_secuestro|date:"d/m/Y H:i" }}</span>
+      {% else %}
+        <span class="pill"><b>Secuestro:</b> -</span>
+      {% endif %}
+
+      <span class="pill"><b>Carga:</b> {{ ingreso.fecha_ingreso|date:"d/m/Y H:i" }}</span>
+
       {% if ingreso.lugar %}
         <span class="pill"><b>Lugar:</b> {{ ingreso.lugar.codigo }}</span>
       {% endif %}
     </div>
+
+    {% if ingreso.oficio_juez_archivo %}
+      <div style="margin-top:10px;">
+        <a class="btn btn--ghost" href="{{ ingreso.oficio_juez_archivo.url }}" target="_blank" rel="noopener">
+          📎 Ver oficio ya cargado
+        </a>
+      </div>
+    {% endif %}
   </div>
 
   <div class="card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
       {% if form.non_field_errors %}
@@ -60,7 +76,7 @@
       <hr class="hr">
 
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn--bad" type="submit">✅ Confirmar retiro</button>
+        <button class="btn btn--ok" type="submit">✅ Confirmar retiro</button>
 
         <a class="btn btn--ghost" href="{% url 'detalle_ingreso' ingreso.id %}">
           📄 Ver ingreso completo

@@ -119,6 +119,45 @@
     </div>
   </div>
 
+    {% if ingreso.oficio_juez_archivo %}
+    <div class="box">
+      <h2>Oficio presentado al momento del retiro</h2>
+
+      {% with url=ingreso.oficio_juez_archivo.url name=ingreso.oficio_juez_archivo.name %}
+        {% with lower=name|lower %}
+          {% if lower|slice:"-4:" == ".jpg" or lower|slice:"-5:" == ".jpeg" or lower|slice:"-4:" == ".png" or lower|slice:"-5:" == ".webp" %}
+            <div style="margin-top:10px;">
+              <img
+                src="{{ url }}"
+                alt="Oficio presentado"
+                style="max-width:50%; height:auto; border:1px solid #bbb; border-radius:10px; padding:6px;"
+              >
+              <div style="margin-top:8px; font-size:12px; color:#444;">
+                Archivo: <b>{{ name }}</b>
+              </div>
+            </div>
+          {% else %}
+            <div style="font-size:13px;">
+              Archivo adjunto: <b>{{ name }}</b>
+            </div>
+            <div style="margin-top:8px;">
+              <a href="{{ url }}" target="_blank">Abrir archivo</a>
+            </div>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+    </div>
+  {% endif %}
+
+  <div class="sign" style="margin-top: 150px;">
+    <h2 style="font-size:14px; margin: 50px 0 75px 0;">Firma del retiro</h2>
+    <div class="sign-grid">
+      <div class="line">Firma</div>
+      <div class="line">Aclaración</div>
+      <div class="line">DNI</div>
+    </div>
+  </div>
+
   <div class="actions">
     <button onclick="window.print()">🖨️ Imprimir</button>
     <button onclick="history.back()">⬅ Volver</button>

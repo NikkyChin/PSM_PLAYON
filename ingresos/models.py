@@ -13,7 +13,9 @@ class IngresoPlayon(models.Model):
 
     vehiculo = models.ForeignKey("vehiculos.Vehiculo", on_delete=models.PROTECT, related_name="ingresos")
     fecha_ingreso = models.DateTimeField("Fecha de ingreso", auto_now_add=True)
-
+    
+    # Fecha REAL del operativo (puede ser distinta a la fecha de carga)
+    fecha_secuestro = models.DateTimeField("Fecha de secuestro", null=True, blank=True)
     tipo_vehiculo = models.CharField("Tipo de vehículo", max_length=20, choices=TIPO_VEHICULO_CHOICES, blank=False)
     marca = models.CharField(max_length=50, blank=False)
     modelo = models.CharField(max_length=50, blank=False)
@@ -59,27 +61,13 @@ class IngresoPlayon(models.Model):
 
     retirado = models.BooleanField("¿Retirado?", default=False)
     fecha_retiro = models.DateTimeField("Fecha de retiro", null=True, blank=True)
-    entregado_por = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="egresos_entregados",
-        null=True,
-        blank=True,
-    )
+    entregado_por = models.ForeignKey(User,on_delete=models.PROTECT,related_name="egresos_entregados",null=True,blank=True,)
     nombre_retira = models.CharField("Nombre de quien retira", max_length=100, blank=True)
     dni_retira = models.CharField("DNI de quien retira", max_length=20, blank=True)
     observaciones_egreso = models.TextField("Observaciones de egreso", blank=True)
 
-    retiro_autorizado = models.BooleanField("Retiro autorizado por Juzgado", default=False)
-    retiro_autorizado_en = models.DateTimeField("Fecha autorización", null=True, blank=True)
-    retiro_autorizado_por = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="retiros_autorizados",
-        verbose_name="Autorizado por",
-    )
+    # Oficio/orden presentada al momento del retiro (foto, PDF, etc.)
+    oficio_juez_archivo = models.FileField("Oficio del Juzgado (archivo)",upload_to="retiros/oficios/",null=True,blank=True)
 
     class Meta:
         verbose_name = "Ingreso al playón"
@@ -91,22 +79,32 @@ class IngresoPlayon(models.Model):
 
     @property
     def dias_en_playon(self):
-        inicio = djtz.localtime(self.fecha_ingreso).date()
+        inicio_dt = self.fecha_secuestro or self.fecha_ingreso  # fallback
+        inicio = djtz.localtime(inicio_dt).date()
+
         fin_dt = self.fecha_retiro if (self.retirado and self.fecha_retiro) else djtz.now()
         fin = djtz.localtime(fin_dt).date()
-        return (fin - inicio).days + 1
 
-# Modelo para auditoría de cambios en IngresoPlayon. Cada vez que se edite un ingreso, se puede crear una instancia de este modelo con los cambios realizados.
+        return (fin - inicio).days + 1 
+
+# Modelo para auditoría de cambios en IngresoPlayon
 class AuditoriaIngreso(models.Model):
-    ingreso = models.ForeignKey("ingresos.IngresoPlayon", on_delete=models.CASCADE, related_name="auditorias",)
-    usuario = models.ForeignKey(User,on_delete=models.PROTECT,related_name="auditorias_ingresos",)  # este sí está bien que sea único)
-    fecha = models.DateTimeField(auto_now_add=True)
-
+    ingreso = models.ForeignKey(
+        "ingresos.IngresoPlayon",
+        on_delete=models.CASCADE,
+        related_name="auditorias",
+    )
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="auditorias_ingresos",
+    )
     accion = models.CharField(max_length=30, default="EDICION")
     cambios = models.JSONField(default=dict, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-fecha"]
+        ordering = ["-creado_en"]
 
     def __str__(self):
-        return f"{self.ingreso.nro_legajo_playon} - {self.accion} - {self.fecha:%Y-%m-%d %H:%M}"
+        return f"{self.ingreso.nro_legajo_playon} - {self.accion} - {self.creado_en:%Y-%m-%d %H:%M}"

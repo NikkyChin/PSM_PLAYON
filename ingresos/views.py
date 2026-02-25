@@ -1,10 +1,10 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db import transaction
 from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.http import HttpResponseForbidden
+
 from vehiculos.forms import EditarVehiculoForm
 from ingresos.forms import IngresoPlayonForm, EgresoPlayonForm, EditarIngresoPlayonForm
 from vehiculos.models import Vehiculo
@@ -16,14 +16,13 @@ from ingresos.models import IngresoPlayon, AuditoriaIngreso
 def _diff_instance_form(original_obj, form):
     """
     Devuelve dict {campo: {"antes": x, "despues": y}} solo para fields que cambiaron.
-    Funciona con ModelForm. CAMBIAR EN EL FUTURO
+    Funciona con ModelForm.
     """
     cambios = {}
     for field in form.changed_data:
         antes = getattr(original_obj, field)
         despues = form.cleaned_data.get(field)
 
-        # normalizar datetimes a str si querés evitar problemas JSON
         if hasattr(antes, "isoformat"):
             antes = antes.isoformat()
         if hasattr(despues, "isoformat"):
@@ -32,7 +31,7 @@ def _diff_instance_form(original_obj, form):
         cambios[field] = {"antes": antes, "despues": despues}
     return cambios
 
-# Vistas para gestión de ingresos y egresos al playón, y su auditoría
+
 def _qs_ingresos_base():
     return (
         IngresoPlayon.objects
@@ -47,20 +46,19 @@ def _qs_ingresos_base():
         )
         .order_by("-fecha_ingreso")
     )
-    
-# nuevo ingreso al playón, con formulario para cargar datos del ingreso y del vehículo, y generar auditoría de creación.
+
+
+# NUEVO INGRESO
 @login_required
 def nuevo_ingreso_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permisos.html")
 
     if request.method == "POST":
         form = IngresoPlayonForm(request.POST)
         if form.is_valid():
-            dominio = form.cleaned_data["dominio"]
-            dominio = dominio.replace(" ", "").upper()
+            dominio = (form.cleaned_data["dominio"] or "").replace(" ", "").upper()
 
             vehiculo, creado = Vehiculo.objects.get_or_create(
                 dominio=dominio,
@@ -73,29 +71,37 @@ def nuevo_ingreso_playon(request):
                     "nro_motor": form.cleaned_data.get("nro_motor", ""),
                 },
             )
-            
-            # si ya existía, actualizamos si nos mandaron valores
+
+            # Si ya existía, actualizamos si nos mandaron valores faltantes
             nro_chasis = (form.cleaned_data.get("nro_chasis") or "").strip()
             nro_motor = (form.cleaned_data.get("nro_motor") or "").strip()
 
-            cambios = False
+            cambios_vehiculo = False
             if nro_chasis and not vehiculo.nro_chasis:
                 vehiculo.nro_chasis = nro_chasis
-                cambios = True
+                cambios_vehiculo = True
 
             if nro_motor and not vehiculo.nro_motor:
                 vehiculo.nro_motor = nro_motor
-                cambios = True
+                cambios_vehiculo = True
 
-            if cambios:
+            if cambios_vehiculo:
                 vehiculo.save()
-
 
             ingreso = form.save(commit=False)
             ingreso.vehiculo = vehiculo
             ingreso.recibido_por = request.user
             ingreso.save()
 
+            # Auditoría CREACIÓN (re recomendado)
+            AuditoriaIngreso.objects.create(
+                ingreso=ingreso,
+                usuario=request.user,
+                accion="CREACION",
+                cambios={"ingreso": "Creación del ingreso"},
+            )
+
+            # Movimiento de lugar + ocupar
             if ingreso.lugar:
                 ingreso.lugar.estado = "OCUPADO"
                 ingreso.lugar.save()
@@ -107,7 +113,9 @@ def nuevo_ingreso_playon(request):
                     movido_por=request.user,
                     motivo="Ingreso al playón",
                 )
-            return redirect("lista_vehiculos")
+
+            # ✅ Mejor UX: volver a ingresos
+            return redirect("lista_ingresos")
 
         else:
             print("❌ FORMULARIO NO VÁLIDO:", form.errors)
@@ -116,26 +124,23 @@ def nuevo_ingreso_playon(request):
 
     return render(request, "ingresos/ingreso_form.html", {"form": form})
 
-# Resgistra el egreso de un vehículo del playón, con formulario para cargar datos de retiro y generar auditoría de cambios.
+
+# REGISTRAR EGRESO / RETIRO
 @login_required
 def registrar_egreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permisos.html")
 
     ingreso = get_object_or_404(IngresoPlayon, id=ingreso_id)
 
-    # si ya está retirado, no tiene sentido cargarlo de nuevo
+    # Si ya está retirado, no tiene sentido cargarlo de nuevo
     if ingreso.retirado:
         return redirect("lista_ingresos")
-    
-    if not ingreso.retiro_autorizado:
-    # podés renderizar una pantalla linda, o mostrar un mensaje
-        return render(request, "juzgado/no_autorizado.html", {"ingreso": ingreso})
 
     if request.method == "POST":
-        form = EgresoPlayonForm(request.POST, instance=ingreso)
+        # ✅ importantísimo para subir el oficio
+        form = EgresoPlayonForm(request.POST, request.FILES, instance=ingreso)
         if form.is_valid():
             egreso = form.save(commit=False)
             egreso.retirado = True
@@ -157,14 +162,22 @@ def registrar_egreso(request, ingreso_id):
                 egreso.lugar.estado = "LIBRE"
                 egreso.lugar.save()
 
+            # Auditoría egreso
+            AuditoriaIngreso.objects.create(
+                ingreso=egreso,
+                usuario=request.user,
+                accion="EGRESO",
+                cambios={"egreso": "Registro de retiro"},
+            )
+
             return redirect("imprimir_retiro", ingreso_id=egreso.id)
     else:
         form = EgresoPlayonForm(instance=ingreso)
 
     return render(request, "ingresos/egreso_form.html", {"form": form, "ingreso": ingreso})
 
-# Imprime el comprobante de retiro del playón, con datos del ingreso y egreso, para entregar 
-# al usuario que retira el vehículo. Solo se puede imprimir si el ingreso ya fue retirado, para evitar confusiones.
+
+# IMPRIMIR ACTA
 @login_required
 def imprimir_retiro(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -176,17 +189,16 @@ def imprimir_retiro(request, ingreso_id):
         id=ingreso_id
     )
 
-    # Solo se imprime si ya fue retirado
     if not ingreso.retirado:
         return HttpResponseForbidden("Este ingreso todavía no fue retirado.")
 
     return render(request, "ingresos/imprimir_retiro.html", {"ingreso": ingreso})
 
-# Detalle de un ingreso al playón, con su auditoría de cambios
+
+# DETALLE
 @login_required
 def detalle_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
-
     if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
         return render(request, "cuentas/no_permisos.html")
 
@@ -195,7 +207,8 @@ def detalle_ingreso(request, ingreso_id):
 
     return render(request, "ingresos/detalle_ingreso.html", {"ingreso": ingreso, "auditorias": auditorias})
 
-# Lista de ingresos al playón con búsqueda
+
+# LISTAS
 @login_required
 def lista_ingresos(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -203,7 +216,6 @@ def lista_ingresos(request):
         return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
-
     ingresos = _qs_ingresos_base()
 
     if q:
@@ -218,8 +230,7 @@ def lista_ingresos(request):
         "q": q,
     })
 
-    
-# Lista de ingresos actualmente en el playón (no retirados) con búsqueda
+
 @login_required
 def ingresos_en_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -227,7 +238,6 @@ def ingresos_en_playon(request):
         return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
-
     ingresos = _qs_ingresos_base().filter(retirado=False)
 
     if q:
@@ -242,7 +252,7 @@ def ingresos_en_playon(request):
         "q": q,
     })
 
-# Lista de ingresos retirados del playón con búsqueda
+
 @login_required
 def retiros_playon(request):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -250,7 +260,6 @@ def retiros_playon(request):
         return render(request, "cuentas/no_permisos.html")
 
     q = (request.GET.get("q") or "").strip()
-
     ingresos = _qs_ingresos_base().filter(retirado=True)
 
     if q:
@@ -265,7 +274,8 @@ def retiros_playon(request):
         "q": q,
     })
 
-# Editar un ingreso al playón, con formulario para modificar datos del ingreso y del vehículo, y generar auditoría de cambios.
+
+# EDITAR
 @login_required
 def editar_ingreso(request, ingreso_id):
     grupos = set(request.user.groups.values_list("name", flat=True))
@@ -275,7 +285,6 @@ def editar_ingreso(request, ingreso_id):
     ingreso = get_object_or_404(IngresoPlayon.objects.select_related("vehiculo"), id=ingreso_id)
     vehiculo = ingreso.vehiculo
 
-    
     ingreso_antes = IngresoPlayon.objects.get(id=ingreso.id)
     vehiculo_antes = Vehiculo.objects.get(id=vehiculo.id)
 
@@ -297,7 +306,6 @@ def editar_ingreso(request, ingreso_id):
                 form_vehiculo.save()
                 form_ingreso.save()
 
-                # Guardar auditoría SOLO si hubo cambios reales
                 if cambios:
                     AuditoriaIngreso.objects.create(
                         ingreso=ingreso,
@@ -307,7 +315,6 @@ def editar_ingreso(request, ingreso_id):
                     )
 
             return redirect("detalle_ingreso", ingreso_id=ingreso.id)
-
     else:
         form_ingreso = EditarIngresoPlayonForm(instance=ingreso)
         form_vehiculo = EditarVehiculoForm(instance=vehiculo)
