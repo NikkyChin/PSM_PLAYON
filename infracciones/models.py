@@ -1,15 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Modelo para registrar las infracciones. Se usa en la app de infracciones 
+
 class Infraccion(models.Model):
     inspector = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name="actas_infraccion",
+        verbose_name="Cargado por",
+    )
+
+    autor_acta = models.CharField(
+        "Inspector responsable / Autor del acta",
+        max_length=120,
+        blank=True,
     )
 
     nro_acta = models.CharField("N° de acta", max_length=30, unique=True)
+
+    fecha_acta = models.DateTimeField("Fecha del acta", null=True, blank=True)
 
     dni_infractor = models.CharField("DNI", max_length=20)
     nombre_infractor = models.CharField("Nombre", max_length=80)
@@ -38,6 +47,14 @@ class Infraccion(models.Model):
 
     descripcion = models.TextField("Descripción / tipo de infracción")
 
+    # 🔥 Nuevo: archivo único adjunto
+    archivo_adjunto = models.FileField(
+        "Archivo adjunto (foto o PDF)",
+        upload_to="infracciones/adjuntos/",
+        null=True,
+        blank=True,
+    )
+
     creada_en = models.DateTimeField(auto_now_add=True)
     actualizada_en = models.DateTimeField(auto_now=True)
 
@@ -46,7 +63,6 @@ class Infraccion(models.Model):
 
     def __str__(self):
         return f"Acta {self.nro_acta} - {self.dominio}"
-
 
 # El modelo AuditoriaInfraccion registra los cambios realizados a un acta, con el usuario que hizo el cambio, la fecha y un texto con los cambios realizados.
 class AuditoriaInfraccion(models.Model):

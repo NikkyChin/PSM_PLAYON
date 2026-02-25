@@ -4,12 +4,24 @@
 {% block content %}
   <div class="card">
     <div class="h1">Acta {{ acta.nro_acta }}</div>
-    <p class="muted">Dominio {{ acta.dominio }} — Cargada por {{ acta.inspector.username }} — {{ acta.creada_en }}</p>
 
-    <div class="pills">
+    <p class="muted">
+      Dominio {{ acta.dominio }}
+      — Cargada por {{ acta.inspector.username }}
+      {% if acta.autor_acta %}— Autor: {{ acta.autor_acta }}{% endif %}
+      — {{ acta.creada_en|date:"d/m/Y H:i" }}
+    </p>
+
+    <div class="pills" style="gap:10px;">
       <a class="btn btn--bad" href="{% url 'infracciones:editar' acta.id %}">Editar</a>
       <a class="btn btn--ghost" href="{% url 'infracciones:lista' %}">Volver</a>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="h2">Datos del acta</div>
+    <p><b>Fecha del acta:</b> {% if acta.fecha_acta %}{{ acta.fecha_acta|date:"d/m/Y H:i" }}{% else %}-{% endif %}</p>
+    <p><b>Autor del acta:</b> {{ acta.autor_acta|default:"-" }}</p>
   </div>
 
   <div class="card">
@@ -35,33 +47,50 @@
   </div>
 
   <div class="card">
-  <h2>Auditoría (últimos cambios)</h2>
+    <div class="h2">Archivo adjunto</div>
 
-  {% if auditorias %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Usuario</th>
-          <th>Acción</th>
-          <th>Cambios</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in auditorias %}
-          <tr>
-            <td>{{ a.fecha }}</td>
-            <td>{{ a.usuario.username }}</td>
-            <td>{{ a.accion }}</td>
-            <td style="white-space:pre-wrap;">{{ a.cambios_txt|default:"-" }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p class="muted">Sin cambios registrados.</p>
-  {% endif %}
-</div>
+    {% if acta.archivo_adjunto %}
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <a class="btn btn--ok" href="{{ acta.archivo_adjunto.url }}" target="_blank" rel="noopener">
+          📎 Ver archivo
+        </a>
+        <span class="muted" style="font-size:12px;">
+          {{ acta.archivo_adjunto.name }}
+        </span>
+      </div>
+    {% else %}
+      <p class="muted">Sin archivo adjunto.</p>
+    {% endif %}
+  </div>
 
+  <div class="card">
+    <div class="h2">Auditoría (últimos cambios)</div>
 
+    {% if auditorias %}
+      <div style="overflow:auto; margin-top:10px;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Cambios</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in auditorias %}
+              <tr>
+                <td>{{ a.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ a.usuario.username }}</td>
+                <td>{{ a.accion }}</td>
+                <td style="white-space:pre-wrap;">{{ a.cambios_txt|default:"-" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">Sin cambios registrados.</p>
+    {% endif %}
+  </div>
 {% endblock %}

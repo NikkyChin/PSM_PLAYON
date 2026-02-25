@@ -3,11 +3,7 @@
 
 {% block content %}
   <div class="card">
-    {% if es_inspector%}
-      <div class="h1">Mis actas</div>
-    {% else %}
-      <div class="h1">Actas de infracciones</div>
-    {% endif %}
+    <div class="h1">Actas de infracciones</div>
 
     <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
       <input type="text" name="q" placeholder="Buscar por acta, DNI o dominio..." value="{{ q|default:'' }}" style="flex:1; min-width:240px;">
@@ -26,13 +22,15 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Usuario</th>
+              <th>Cargó</th>
+              <th>Autor</th>
               <th>N° Acta</th>
+              <th>Fecha acta</th>
               <th>DNI</th>
               <th>Nombre</th>
               <th>Dominio</th>
               <th>Retenido</th>
-              <th>Creada</th>
+              <th>Cargada</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -40,12 +38,14 @@
             {% for a in actas %}
               <tr>
                 <td>{{ a.inspector.username }}</td>
+                <td>{% if a.inspector_autor %}{{ a.inspector_autor.username }}{% else %}-{% endif %}</td>
                 <td style="color:var(--text); font-weight:900;">{{ a.nro_acta }}</td>
+                <td>{% if a.fecha_acta %}{{ a.fecha_acta|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
                 <td>{{ a.dni_infractor }}</td>
                 <td>{{ a.apellido_infractor }}, {{ a.nombre_infractor }}</td>
                 <td style="color:var(--text); font-weight:900;">{{ a.dominio }}</td>
                 <td>{{ a.retenido_playon|yesno:"Sí,No" }}</td>
-                <td>{{ a.creada_en }}</td>
+                <td>{{ a.creada_en|date:"d/m/Y H:i" }}</td>
                 <td>
                   <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <a class="btn btn--ghost" href="{% url 'infracciones:detalle' a.id %}">Detalle</a>
