@@ -20,3 +20,8 @@ staticfiles/
 # Archivos de VS Code
 .vscode/
 
+# docker-compose
+compose.yaml
+Dockerfile
+README.Docker.md
+.dockerignore

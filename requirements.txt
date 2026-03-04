@@ -13,3 +13,4 @@ six==1.17.0
 sqlparse==0.5.4
 tzdata==2025.2
 urllib3==2.6.3
+psycopg2-binary

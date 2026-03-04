@@ -13,7 +13,7 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
 
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
-    "127.0.0.1,localhost"
+    "127.0.0.1,localhost,192.168.0.124"
 ).split(",")
 
 CSRF_TRUSTED_ORIGINS = os.environ.get(
@@ -85,8 +85,12 @@ WSGI_APPLICATION = "PSM_PLAYON.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "playon_db"),
+        "USER": os.environ.get("DB_USER", "playon_user"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "playon_pass"),
+        "HOST": os.environ.get("DB_HOST", "db"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
