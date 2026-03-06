@@ -3,24 +3,33 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # ==============================
 # Seguridad básica configurable
 # ==============================
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-insecure-key-change-me")
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("Falta definir DJANGO_SECRET_KEY")
+
+DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
-    "127.0.0.1,localhost,192.168.0.124"
+    "127.0.0.1,localhost"
 ).split(",")
 
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "DJANGO_CSRF_TRUSTED",
-    ""
-).split(",") if os.environ.get("DJANGO_CSRF_TRUSTED") else []
+CSRF_TRUSTED_ORIGINS = (
+    os.environ.get("DJANGO_CSRF_TRUSTED", "").split(",")
+    if os.environ.get("DJANGO_CSRF_TRUSTED")
+    else []
+)
 
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ==============================
 # Aplicaciones
@@ -34,8 +43,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    "storages",
-
     "cuentas",
     "vehiculos",
     "playon",
@@ -43,6 +50,10 @@ INSTALLED_APPS = [
     "infracciones",
 ]
 
+USE_S3 = os.environ.get("USE_S3", "0") == "1"
+
+if USE_S3:
+    INSTALLED_APPS.append("storages")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -56,7 +67,6 @@ MIDDLEWARE = [
     "cuentas.middleware.UsuarioConRolMiddleware",
     "cuentas.middleware.IdleTimeoutMiddleware",
 ]
-
 
 ROOT_URLCONF = "PSM_PLAYON.urls"
 
@@ -77,7 +87,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "PSM_PLAYON.wsgi.application"
-
 
 # ==============================
 # Base de datos
@@ -104,10 +113,6 @@ LOGOUT_REDIRECT_URL = "login"
 
 SESSION_IDLE_TIMEOUT_SECONDS = 20 * 60
 
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = "Lax"
-
-
 # ==============================
 # Internacionalización
 # ==============================
@@ -117,21 +122,17 @@ TIME_ZONE = "America/Argentina/Buenos_Aires"
 USE_I18N = True
 USE_TZ = True
 
-
 # ==============================
 # Static files
 # ==============================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 
 # ==============================
 # Media (Local o S3)
 # ==============================
-
-USE_S3 = os.environ.get("USE_S3", "0") == "1"
 
 if USE_S3:
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
@@ -142,7 +143,6 @@ if USE_S3:
 
     AWS_S3_SIGNATURE_VERSION = "s3v4"
     AWS_DEFAULT_ACL = None
-
     AWS_S3_OBJECT_PARAMETERS = {
         "CacheControl": "max-age=86400",
     }
@@ -160,11 +160,9 @@ if USE_S3:
     }
 
     MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{AWS_LOCATION}/"
-
 else:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
-
 
 # ==============================
 # Default primary key
