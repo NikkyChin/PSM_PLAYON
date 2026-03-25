@@ -1,27 +1,23 @@
-# Entorno virtual
+# Entornos virtuales
 venv/
-env/
+entorno_virtual/
 
-# Archivos de Python
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
 
-# Archivos de Django
+# Variables sensibles
+.env
+
+# Base local vieja
 db.sqlite3
-db_prod.sqlite3
+
+# Archivos estáticos/media generados
 media/
 staticfiles/
-*.sqlite3
 
-# Configuración local
-*.env
-
-# Archivos de VS Code
+# IDEs / SO
 .vscode/
-
-# docker-compose
-compose.yaml
-Dockerfile
-README.Docker.md
-.dockerignore
+.idea/
+.DS_Store
+Thumbs.db

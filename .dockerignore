@@ -1,0 +1,10 @@
+venv
+entorno_virtual
+__pycache__
+*.pyc
+.git
+.gitignore
+.env
+db.sqlite3
+media
+staticfiles

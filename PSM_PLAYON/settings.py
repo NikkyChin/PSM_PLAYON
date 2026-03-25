@@ -95,9 +95,9 @@ WSGI_APPLICATION = "PSM_PLAYON.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DB_NAME", "playon_db"),
-        "USER": os.environ.get("DB_USER", "playon_user"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "playon_pass"),
+        "NAME": os.environ.get("DB_NAME", "postgres"),
+        "USER": os.environ.get("DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
         "HOST": os.environ.get("DB_HOST", "db"),
         "PORT": os.environ.get("DB_PORT", "5432"),
     }
@@ -131,7 +131,7 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # ==============================
-# Media (Local o S3)
+# Storage de estáticos/media
 # ==============================
 
 if USE_S3:
@@ -161,9 +161,17 @@ if USE_S3:
 
     MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/{AWS_LOCATION}/"
 else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
-
 # ==============================
 # Default primary key
 # ==============================
