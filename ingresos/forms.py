@@ -75,9 +75,11 @@ class IngresoPlayonForm(forms.ModelForm):
             tipo = self.instance.tipo_vehiculo
 
         if tipo == "MOTO":
-            qs = qs.filter(tipo="MOTO")
+            # Puede ir a MOTO y GENERAL
+            qs = qs.filter(tipo__in=["MOTO"])
         else:
-            qs = qs.exclude(tipo="MOTO")
+            # No motos → solo GENERAL
+            qs = qs.filter(tipo="GENERAL")
 
         # Lugar opcional
         self.fields["lugar"].queryset = qs
@@ -89,11 +91,17 @@ class IngresoPlayonForm(forms.ModelForm):
 
     def clean_lugar(self):
         lugar = self.cleaned_data.get("lugar")
+        tipo = self.cleaned_data.get("tipo_vehiculo")
+
         if not lugar:
             return lugar
 
         if lugar.estado != "LIBRE":
             raise forms.ValidationError("Ese lugar ya no está libre. Elegí otro.")
+
+        # 🔥 Validación clave
+        if tipo != "MOTO" and lugar.tipo == "MOTO":
+            raise forms.ValidationError("Ese lugar es exclusivo para motos.")
 
         return lugar
 
@@ -101,9 +109,10 @@ class IngresoPlayonForm(forms.ModelForm):
 class EgresoPlayonForm(forms.ModelForm):
     class Meta:
         model = IngresoPlayon
-        fields = ("nombre_retira", "dni_retira", "oficio_juez_archivo", "observaciones_egreso")
+        fields = ("nombre_retira", "dni_retira", "oficio_juez_archivo", "observaciones_egreso", "observaciones_generales_interno")
         widgets = {
             "observaciones_egreso": forms.Textarea(attrs={"rows": 3}),
+            "observaciones_generales_interno": forms.Textarea(attrs={"rows": 3}),
             "oficio_juez_archivo": forms.ClearableFileInput(),
         }
         help_texts = {
@@ -161,7 +170,7 @@ class EditarIngresoPlayonForm(forms.ModelForm):
             "observaciones_generales",
 
             # si querés permitir cambiar la ubicación/lugar, descomentá:
-            # "ubicacion_interna",
+            "ubicacion_interna",
             # "lugar",
         )
 

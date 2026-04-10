@@ -96,6 +96,11 @@
         <div class="v">{{ ingreso.observaciones_egreso|default:"-" }}</div>
       </div>
 
+      <div class="kv wide">
+        <div class="k">Observaciones generales internas</div>
+        <div class="v">{{ ingreso.observaciones_generales_interno|default:"-" }}</div>
+      </div>
+
       {% if ingreso.oficio_juez_archivo %}
         <div class="kv wide">
           <div class="k">Oficio presentado</div>

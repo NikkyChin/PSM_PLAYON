@@ -101,6 +101,30 @@ def detalle_lugar(request, lugar_id):
         },
     )
 
+# vistas para cambiar tipo de lugar (general <-> moto)
+@require_POST
+@login_required
+def toggle_tipo_lugar(request, lugar_id):
+    grupos = set(request.user.groups.values_list("name", flat=True))
+    if "ENCARGADO_PLAYON" not in grupos and "ADMIN_SISTEMA" not in grupos:
+        return render(request, "cuentas/no_permisos.html")
+
+    lugar = get_object_or_404(LugarPlayon, id=lugar_id)
+
+    # ❌ No permitir si está ocupado
+    ocupado = IngresoPlayon.objects.filter(lugar=lugar, retirado=False).exists()
+    if ocupado:
+        return redirect("detalle_lugar", lugar_id=lugar.id)
+
+    # 🔄 Alternar tipo
+    if lugar.tipo == "GENERAL":
+        lugar.tipo = "MOTO"
+    else:
+        lugar.tipo = "GENERAL"
+
+    lugar.save()
+
+    return redirect("detalle_lugar", lugar_id=lugar.id)
 
 # vistas para cambiar estado de lugar (libre <-> fuera)
 @require_POST

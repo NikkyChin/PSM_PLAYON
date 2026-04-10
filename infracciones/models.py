@@ -13,7 +13,7 @@ class Infraccion(models.Model):
     autor_acta = models.CharField(
         "Inspector responsable / Autor del acta",
         max_length=120,
-        blank=True,
+        db_index=True,  # 🔥 clave para búsquedas rápidas
     )
 
     nro_acta = models.CharField("N° de acta", max_length=30, unique=True)

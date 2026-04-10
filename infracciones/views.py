@@ -41,7 +41,7 @@ def lista_actas(request):
             Q(dni_infractor__icontains=q) |
             Q(dominio__icontains=q) |
             Q(inspector__username__icontains=q) |
-            Q(inspector_autor__username__icontains=q)
+            Q(autor_acta__icontains=q)
         )
 
     actas = actas.order_by("-creada_en")

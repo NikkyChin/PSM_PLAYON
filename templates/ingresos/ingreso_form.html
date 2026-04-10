@@ -52,4 +52,13 @@
       </div>
     </form>
   </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const tipoSelect = document.getElementById("id_tipo_vehiculo");
+
+        tipoSelect.addEventListener("change", function() {
+            this.form.submit();
+        });
+    });
+  </script>
 {% endblock %}

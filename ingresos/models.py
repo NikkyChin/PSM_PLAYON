@@ -65,6 +65,7 @@ class IngresoPlayon(models.Model):
     nombre_retira = models.CharField("Nombre de quien retira", max_length=100, blank=True)
     dni_retira = models.CharField("DNI de quien retira", max_length=20, blank=True)
     observaciones_egreso = models.TextField("Observaciones de egreso", blank=True)
+    observaciones_generales_interno = models.TextField("Observaciones generales internas", blank=True)
 
     # Oficio/orden presentada al momento del retiro (foto, PDF, etc.)
     oficio_juez_archivo = models.FileField("Oficio del Juzgado (archivo)",upload_to="retiros/oficios/",null=True,blank=True)

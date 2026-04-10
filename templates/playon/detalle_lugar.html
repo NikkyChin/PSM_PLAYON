@@ -26,6 +26,7 @@
     <p class="muted" style="margin-top:6px;">Acciones rápidas según estado del lugar.</p>
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+  
       {% if lugar.estado != "FUERA" %}
         <form method="post" action="{% url 'marcar_lugar_fuera' lugar.id %}">
           {% csrf_token %}
@@ -38,7 +39,18 @@
         </form>
       {% endif %}
 
+      <!-- 🔥 NUEVO -->
+      <form method="post" action="{% url 'toggle_tipo_lugar' lugar.id %}">
+        {% csrf_token %}
+        {% if lugar.tipo == "GENERAL" %}
+          <button class="btn btn--warn" type="submit">🏍️ Marcar como exclusivo MOTO</button>
+        {% else %}
+          <button class="btn btn--ghost" type="submit">🚗 Quitar exclusivo MOTO</button>
+        {% endif %}
+      </form>
+
       <a class="btn btn--ghost" href="{% url 'tablero_playon' %}">⬅ Volver al tablero</a>
+
     </div>
 
     <hr class="hr">
