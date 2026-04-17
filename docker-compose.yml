@@ -16,7 +16,7 @@ services:
 
   web:
     build: .
-    image: nicoudc/psm-playon:v1.2
+    image: nicoudc/psm-playon:v1.1.1
     container_name: psm_playon_web
     restart: unless-stopped
     command: sh /code/entrypoint.sh
@@ -26,8 +26,8 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - django_media:/code/media
-      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/staticfiles:/code/staticfiles  
+      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/media:/code/media
+      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/staticfiles:/code/staticfiles
 
   nginx:
     image: nginx:alpine
@@ -39,8 +39,8 @@ services:
       - "8080:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - django_media:/code/media
-      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/staticfiles:/code/staticfiles  
+      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/media:/code/media
+      - /home/dev-2/Escritorio/trabajo/PSM_PLAYON/staticfiles:/code/staticfiles
 
 volumes:
   postgres_data:

@@ -74,9 +74,10 @@ def detalle_acta(request, acta_id):
     qs = Infraccion.objects.all()
 
     # Si es juez, o no es admin, limitar a lo suyo (igual que venías haciendo)
-    if (not es_admin_sistema(request.user)) or es_juez(request.user):
+    if (not es_admin_sistema(request.user)) and not es_juez(request.user):
         qs = qs.filter(inspector=request.user)
-
+        
+    print(qs.filter(id=acta_id).exists())
     acta = get_object_or_404(qs, id=acta_id)
     auditorias = acta.auditorias.select_related("usuario").all()[:30]
 
