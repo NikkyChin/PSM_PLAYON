@@ -7,9 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Seguridad básica configurable
 # ==============================
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-if not SECRET_KEY:
-    raise ValueError("Falta definir DJANGO_SECRET_KEY")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-default-key")
+
 
 DEBUG = os.environ.get("DJANGO_DEBUG", "0") == "1"
 
@@ -96,9 +95,9 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("DB_NAME", "postgres"),
         "USER": os.environ.get("DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "postgres"),
-        "HOST": os.environ.get("DB_HOST", "db"),
-        "PORT": os.environ.get("DB_PORT", "5432"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", "44veces"),
+        "HOST": os.environ.get("DB_HOST", "44.198.64.82"),
+        "PORT": os.environ.get("DB_PORT", "8087"),
     }
 }
 

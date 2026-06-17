@@ -23,7 +23,7 @@ def tablero_playon(request):
     ocupacion = {ing.lugar_id: ing for ing in ingresos_activos}
 
     # armamos matriz A-Z / 1-15
-    filas = list(string.ascii_uppercase)  # A..Z
+    filas = list("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ")  # A..Z
     columnas = list(range(1, 16))         # 1..15
 
     # mapa rápido: (fila, col) -> LugarPlayon

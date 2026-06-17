@@ -21,3 +21,9 @@ staticfiles/
 .idea/
 .DS_Store
 Thumbs.db
+
+# backups
+backups/
+*.sql
+*.backup
+*.dump
