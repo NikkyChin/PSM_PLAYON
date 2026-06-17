@@ -24,6 +24,7 @@ Thumbs.db
 
 # backups
 backups/
+backup/
 *.sql
 *.backup
 *.dump
